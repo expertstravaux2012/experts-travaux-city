@@ -1,0 +1,38 @@
+---
+// Parcours client : une vraie séquence (4 étapes), donc numérotée. Les marches montent vers la droite.
+import { methodeSection } from '../../data/home';
+import { etapes, garanties } from '../../data/methode';
+import Section from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+---
+
+<Section tone="deep" id="methode" labelledby="methode-title">
+  <SectionHeading id="methode-title" title={methodeSection.title} class="mb-space-xl" />
+  <ol class="grid grid-cols-1 gap-space-md desktop:grid-cols-4 desktop:items-end desktop:gap-space-md">
+    {
+      etapes.map((etape, i) => (
+        <li
+          class="para-lg flex flex-col gap-space-sm bg-face-dark px-space-xl py-space-lg [--skew:1.5rem] desktop:min-h-[var(--h)]"
+          style={`--h:${15 + i * 3}rem`}
+        >
+          <span class="font-display text-headline-lg text-city-on-dark">{etape.numero}</span>
+          <h3 class="font-display text-headline-sm">{etape.titre}</h3>
+          <p class="text-body-md text-stone/85">{etape.description}</p>
+        </li>
+      ))
+    }
+  </ol>
+  <ul class="mt-space-xl flex flex-col gap-space-md desktop:flex-row desktop:gap-space-xl">
+    {
+      garanties.map((g) => (
+        <li class="flex items-start gap-3">
+          <span class="para mt-1.5 block h-3 w-5 shrink-0 bg-city [--skew:0.35rem]" aria-hidden="true"></span>
+          <div>
+            <h3 class="text-title-md font-semibold">{g.titre}</h3>
+            <p class="text-body-sm text-stone/80">{g.description}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

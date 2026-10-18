@@ -1,0 +1,27 @@
+---
+import { marque } from '../../data/home';
+import Section from '../ui/Section.astro';
+import Button from '../ui/Button.astro';
+---
+
+<Section tone="mid" id="apropos" labelledby="marque-title">
+  <div class="grid grid-cols-1 gap-space-lg desktop:grid-cols-12 desktop:items-center desktop:gap-gutter">
+    <div class="flex flex-col gap-space-md desktop:col-span-7">
+      <h2 id="marque-title" class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">{marque.title}</h2>
+      {marque.paragraphs.map((p) => <p class="max-w-xl text-body-lg text-stone/90">{p}</p>)}
+      <div class="pt-space-sm">
+        <Button variant="primary-light" href={marque.link.href} icon="arrow-right">{marque.link.label}</Button>
+      </div>
+    </div>
+    <dl class="grid grid-cols-2 gap-space-md desktop:col-span-5">
+      {
+        marque.facts.map((f) => (
+          <div class="para-lg flex flex-col-reverse bg-face-deep px-space-lg py-space-lg [--skew:1.5rem]">
+            <dt class="text-body-sm text-stone/85">{f.label}</dt>
+            <dd class="font-display text-headline-md text-city-on-dark">{f.valeur}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</Section>

@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import Hero from '../components/sections/Hero.astro';
+import Statement from '../components/sections/Statement.astro';
+import Parcours from '../components/sections/Parcours.astro';
+import Marque from '../components/sections/Marque.astro';
+import RdvSection from '../components/sections/RdvSection.astro';
+import { seo } from '../data/seo';
+---
+
+<Layout title={seo.home.title} description={seo.home.description} path="/">
+  <Header />
+  <main id="main">
+    <Hero />
+    <Statement />
+    <Parcours />
+    <Marque />
+    <RdvSection />
+  </main>
+  <Footer />
+</Layout>

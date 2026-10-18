@@ -1,0 +1,155 @@
+---
+// Section de prise de rendez-vous : coordonnées + formulaire envoyé à un webhook n8n (PUBLIC_RDV_WEBHOOK_URL).
+import { site } from '../../data/site';
+import { rdvIntro, rdvForm, type RdvIntro } from '../../data/rdv';
+import { pourQuelProjet } from '../../data/home';
+import { infosPratiques } from '../../data/showroom';
+import Section from '../ui/Section.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  /** Textes d'en-tête de la section (la page peut fournir les siens). */
+  intro?: RdvIntro;
+  id?: string;
+}
+
+const { intro = rdvIntro, id = 'rendez-vous' } = Astro.props;
+const { fields: f } = rdvForm;
+const webhook = import.meta.env.PUBLIC_RDV_WEBHOOK_URL ?? '';
+const today = new Date().toISOString().slice(0, 10);
+
+const fieldClass =
+  'w-full border border-field-border bg-face-deep px-4 py-4 text-body-md text-stone transition-colors placeholder:text-stone/60 focus-visible:border-city-on-dark';
+const labelClass = 'label-md text-stone';
+const linkClass =
+  'inline-flex min-h-11 w-fit items-center gap-3 text-body-md text-stone underline-offset-4 hover:underline';
+---
+
+<Section tone="dark" id={id} labelledby={`${id}-title`}>
+  <div class="grid grid-cols-1 gap-space-lg desktop:grid-cols-2 desktop:gap-gutter">
+    <div class="flex flex-col gap-8">
+      <div class="flex flex-col gap-space-md">
+        <h2 id={`${id}-title`} class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">{intro.title}</h2>
+        <span class="para block h-1.5 w-24 bg-city [--skew:0.5rem]" aria-hidden="true"></span>
+      </div>
+      <p class="max-w-md text-body-lg text-stone/90">{intro.text}</p>
+
+      <div class="flex max-w-md flex-col gap-space-sm">
+        <h3 class="font-display text-headline-sm text-city-on-dark">{pourQuelProjet.title}</h3>
+        <p class="text-body-md text-stone/90">{pourQuelProjet.text}</p>
+      </div>
+
+      <div class="flex flex-col gap-1 border-l-2 border-city pl-4">
+        <a href={`mailto:${site.email}`} class={linkClass}>
+          <Icon name="mail" class="h-5 w-5" />{site.email}
+        </a>
+        <a href={site.phone.href} class={linkClass}>
+          <Icon name="phone" class="h-5 w-5" />{site.phone.display}
+        </a>
+        {
+          site.address && (
+            <a href={site.address.mapsUrl} target="_blank" rel="noopener noreferrer" class={linkClass}>
+              <Icon name="pin" class="mt-0.5 h-5 w-5 shrink-0" />
+              <span>{site.address.street}<br />{site.address.city}</span>
+            </a>
+          )
+        }
+        <p class="mt-space-sm text-body-sm text-stone/80">{infosPratiques.surRdv}</p>
+      </div>
+    </div>
+
+    <form
+      id="rdv-form"
+      class="para-lg flex flex-col gap-5 bg-face-deep px-space-lg py-space-lg [--skew:2rem] sm:px-space-xl sm:py-space-xl"
+      data-webhook={webhook}
+      data-sending={rdvForm.sending}
+      data-success={rdvForm.success}
+      data-error={rdvForm.error}
+      data-unavailable={rdvForm.unavailable}
+    >
+      <div class="flex flex-col gap-2">
+        <label for="nom" class={labelClass}>{f.nom.label}</label>
+        <input id="nom" name="nom" type="text" autocomplete="name" required class={fieldClass} placeholder={f.nom.placeholder} />
+      </div>
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div class="flex flex-col gap-2">
+          <label for="email" class={labelClass}>{f.email.label}</label>
+          <input id="email" name="email" type="email" autocomplete="email" required class={fieldClass} placeholder={f.email.placeholder} />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="tel" class={labelClass}>{f.tel.label}</label>
+          <input id="tel" name="tel" type="tel" autocomplete="tel" required class={fieldClass} placeholder={f.tel.placeholder} />
+        </div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="motif" class={labelClass}>{f.motif.label}</label>
+        <select id="motif" name="motif" required class={fieldClass}>
+          <option value="" disabled selected>{f.motif.placeholder}</option>
+          {f.motif.options.map((o) => <option value={o}>{o}</option>)}
+        </select>
+      </div>
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div class="flex flex-col gap-2">
+          <label for="date" class={labelClass}>{f.date.label}</label>
+          <input id="date" name="date" type="date" min={today} required class={fieldClass} />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="creneau" class={labelClass}>{f.creneau.label}</label>
+          <select id="creneau" name="creneau" required class={fieldClass}>
+            {f.creneau.options.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="message" class={labelClass}>{f.message.label}</label>
+        <textarea id="message" name="message" rows="3" class={fieldClass} placeholder={f.message.placeholder}></textarea>
+      </div>
+      <!-- Anti-spam : champ piège invisible, ignoré des humains. -->
+      <div class="sr-only" aria-hidden="true">
+        <label for="website">Ne pas remplir</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <label class="flex items-start gap-3 text-body-sm text-stone/85">
+        <input type="checkbox" name="consent" required class="mt-1 h-4 w-4 shrink-0 accent-city-on-dark" />
+        <span>{rdvForm.consent}</span>
+      </label>
+      <Button variant="accent" type="submit" class="w-full">{rdvForm.submit}</Button>
+      <p id="rdv-status" role="status" aria-live="polite" class="text-body-md text-stone"></p>
+    </form>
+  </div>
+</Section>
+
+<script>
+  const form = document.getElementById('rdv-form') as HTMLFormElement | null;
+  const status = document.getElementById('rdv-status');
+  if (form && status) {
+    const { webhook, sending, success, error, unavailable } = form.dataset;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      if (data.website) return; // honeypot
+      if (!webhook) {
+        status.textContent = unavailable ?? '';
+        return;
+      }
+      status.textContent = sending ?? '';
+      if (submit) submit.disabled = true;
+      try {
+        const res = await fetch(webhook, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...data, source: 'site-showroom-city', page: location.pathname }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        status.textContent = success ?? '';
+      } catch {
+        status.textContent = error ?? '';
+      } finally {
+        if (submit) submit.disabled = false;
+      }
+    });
+  }
+</script>

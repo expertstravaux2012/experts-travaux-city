@@ -1,0 +1,40 @@
+---
+// Bouton City : parallélogramme (flancs à ~30°, comme les faces du cube). Polymorphe : <a> si `href`, sinon <button>.
+import Icon from './Icon.astro';
+
+type Variant = 'primary' | 'primary-light' | 'accent' | 'secondary' | 'secondary-light';
+
+interface Props {
+  variant?: Variant;
+  href?: string;
+  type?: 'button' | 'submit';
+  icon?: 'arrow-right' | 'mail' | 'phone';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { variant = 'primary', href, type = 'button', icon, class: className = '', ...rest } = Astro.props;
+
+const base =
+  'para inline-flex min-h-12 items-center justify-center gap-space-sm px-space-lg py-space-md font-sans text-body-md font-semibold transition-colors duration-200 [--skew:0.9rem]';
+
+const variants: Record<Variant, string> = {
+  // Sur fond clair.
+  primary: 'bg-obsidian text-on-primary hover:bg-city-strong',
+  // Sur plans sombres : le plus contrasté.
+  'primary-light': 'bg-stone text-obsidian hover:bg-city-on-dark',
+  // Appel principal : terracotta foncée, texte stone.
+  accent: 'bg-city-strong text-on-accent hover:bg-obsidian',
+  // Secondaire : parallélogramme translucide.
+  secondary: 'bg-obsidian/10 text-obsidian hover:bg-obsidian hover:text-on-primary',
+  'secondary-light':
+    'bg-stone/15 text-stone hover:bg-stone hover:text-obsidian',
+};
+
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class={`${base} ${variants[variant]} ${className}`} href={href} type={href ? undefined : type} {...rest}>
+  <slot />
+  {icon && <Icon name={icon} class="h-4 w-4" />}
+</Tag>

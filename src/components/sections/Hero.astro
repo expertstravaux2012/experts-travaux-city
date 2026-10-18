@@ -1,0 +1,123 @@
+---
+// Entrée : les photos s'enroulent en colimaçon ; en défilant, la caméra descend la spirale (Three.js, chargé à la demande).
+// Sans WebGL, avec mouvement réduit ou économie de données : photo plein cadre + vignettes (repli statique).
+import { hero } from '../../data/home';
+import { realisations } from '../../data/realisations';
+import Button from '../ui/Button.astro';
+---
+
+<section id="hero" class="hero relative bg-face-deep text-stone" data-hero data-pin="7">
+  <div class="hero-pin sticky top-0 isolate flex h-[100svh] min-h-[34rem] flex-col justify-end overflow-hidden" data-stage>
+    <!-- Repli statique : fond photo -->
+    <div class="hero-static absolute inset-0 z-hero-backdrop" aria-hidden="true">
+      {
+        realisations.map((r, i) => (
+          <img src={r.image} alt="" width={r.width} height={r.height} sizes="100vw" loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : 'auto'} decoding="async" class="hero-bg absolute inset-0 h-full w-full object-cover" data-active={i === 0 ? 'true' : 'false'} />
+        ))
+      }
+    </div>
+    <div class="hero-static absolute inset-0 z-hero-layer bg-gradient-to-t from-face-deep via-face-deep/55 to-face-deep/20" aria-hidden="true"></div>
+    <div class="hero-static absolute inset-0 z-hero-layer bg-gradient-to-r from-face-deep/70 via-transparent to-transparent" aria-hidden="true"></div>
+
+    <!-- Mode hélice -->
+    <canvas class="hero-canvas pointer-events-none absolute inset-0 z-hero-layer h-full w-full opacity-0 transition-opacity duration-1000" data-canvas aria-hidden="true"></canvas>
+    <div class="hero-shade pointer-events-none absolute inset-x-0 bottom-0 z-hero-shade hidden h-2/5 bg-gradient-to-t from-face-deep to-transparent" aria-hidden="true"></div>
+    <div class="hero-shade pointer-events-none absolute inset-y-0 left-0 z-hero-shade hidden w-3/5 bg-gradient-to-r from-face-deep/80 via-face-deep/30 to-transparent" data-shade-left aria-hidden="true"></div>
+
+    <div class="mx-auto flex w-full max-w-site flex-col gap-space-lg px-margin pb-28 pt-40 md:pb-32">
+      <div class="hero-copy flex flex-col gap-space-md" data-copy>
+        <h1 class="flex flex-col leading-none">
+          <span class="font-display text-title-md font-light tracking-wide md:text-headline-sm md:font-light">{hero.brand}</span>
+          <span class="mt-2 pb-[0.15em] font-city text-hero font-light text-city-on-dark">{hero.name}<span class="sr-only"> — {hero.srOnly}</span></span>
+        </h1>
+        <p class="max-w-md text-body-lg text-stone/90">{hero.subtitle}</p>
+        <div class="flex flex-wrap gap-space-md pt-space-sm">
+          <Button variant="accent" href={hero.ctas.rdv.href} icon="arrow-right">{hero.ctas.rdv.label}</Button>
+          <Button variant="secondary-light" href={hero.ctas.showroom.href}>{hero.ctas.showroom.label}</Button>
+        </div>
+      </div>
+
+      <ul class="hero-thumbs -mx-margin flex snap-x gap-space-sm overflow-x-auto px-margin pt-space-sm pb-space-sm -mt-space-sm -mb-space-xs desktop:mx-0 desktop:grid desktop:grid-cols-6 desktop:overflow-visible desktop:px-0" role="list" aria-label="Les univers du showroom">
+        {
+          realisations.map((r, i) => (
+            <li class="w-44 shrink-0 snap-start desktop:w-auto">
+              <button type="button" class="hero-thumb group block w-full border-t-2 border-stone/30 bg-face-deep/55 text-left backdrop-blur-sm transition-colors aria-pressed:border-city-on-dark" data-i={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+                <span class="block aspect-video overflow-hidden">
+                  <img src={r.image} alt="" width="480" height="270" loading="lazy" decoding="async" class="h-full w-full object-cover opacity-80 transition duration-500 group-hover:opacity-100 group-aria-pressed:opacity-100" />
+                </span>
+                <span class="block px-space-sm py-space-sm text-body-sm font-medium text-stone/80 group-aria-pressed:text-stone">{r.categorie}</span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .hero-bg { opacity: 0; transform: scale(1.06); transition: opacity 0.9s ease, transform 6s ease-out; }
+  .hero-bg[data-active='true'] { opacity: 1; transform: scale(1); }
+  .hero-thumbs { scrollbar-width: none; }
+  .hero.is-3d { height: calc(var(--pin, 7) * 100svh); }
+  .hero.is-3d .hero-static { display: none; }
+  .hero.is-3d .hero-canvas { opacity: 1; }
+  .hero.is-3d .hero-shade { display: block; }
+  .hero.is-3d .hero-copy { opacity: calc(1 - var(--e, 0) * 1.5); transform: translateY(calc(var(--e, 0) * -1.5rem)); }
+  .hero.is-3d [data-shade-left] { opacity: calc(1 - var(--e, 0)); }
+  @media (prefers-reduced-motion: reduce) { .hero-bg { transition: none; transform: none; } }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-hero]');
+  if (root) {
+    const bgs = [...root.querySelectorAll<HTMLElement>('.hero-bg')];
+    const btns = [...root.querySelectorAll<HTMLButtonElement>('.hero-thumb')];
+    const copy = root.querySelector<HTMLElement>('[data-copy]');
+    const press = (i: number) => btns.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
+    const showBg = (i: number) => {
+      bgs.forEach((b, k) => b.setAttribute('data-active', String(k === i)));
+      press(i);
+    };
+    let jump: ((i: number) => void) | null = null;
+    btns.forEach((b, i) => {
+      b.addEventListener('click', () => (jump ? jump(i) : showBg(i)));
+      b.addEventListener('mouseenter', () => !jump && matchMedia('(hover:hover)').matches && showBg(i));
+      b.addEventListener('focus', () => !jump && showBg(i));
+    });
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const saveData = (navigator as unknown as { connection?: { saveData?: boolean } }).connection?.saveData;
+    const gl = (() => {
+      try {
+        const c = document.createElement('canvas');
+        return !!(c.getContext('webgl2') || c.getContext('webgl'));
+      } catch {
+        return false;
+      }
+    })();
+    if (!reduced && !saveData && gl) {
+      const stage = root.querySelector<HTMLElement>('[data-stage]')!;
+      const canvas = root.querySelector<HTMLCanvasElement>('[data-canvas]')!;
+      const images = realisations();
+      import('../../lib/helix/tour').then(({ startHelix }) => {
+        root.classList.add('is-3d');
+        const h = startHelix({
+          canvas,
+          stage,
+          track: root,
+          images,
+          onIndex: press,
+          onIntro: (e) => {
+            root.style.setProperty('--e', e.toFixed(3));
+            if (copy) (copy as HTMLElement & { inert: boolean }).inert = e > 0.95;
+          },
+        });
+        jump = h.jumpTo;
+      }).catch(() => root.classList.remove('is-3d'));
+    }
+  }
+  function realisations() {
+    return [...document.querySelectorAll<HTMLImageElement>('.hero-bg')].map((i) => i.currentSrc || i.src);
+  }
+</script>

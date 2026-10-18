@@ -1,0 +1,101 @@
+---
+import Preloader from '../components/layout/Preloader.astro';
+import Marquee from '../components/layout/Marquee.astro';
+import '@fontsource/hanken-grotesk/latin-400.css';
+import '@fontsource/hanken-grotesk/latin-500.css';
+import '@fontsource/hanken-grotesk/latin-600.css';
+import '@fontsource/anton/latin-400.css';
+import '@fontsource/montserrat/latin-300.css';
+import hanken400 from '@fontsource/hanken-grotesk/files/hanken-grotesk-latin-400-normal.woff2?url';
+import city300 from '@fontsource/montserrat/files/montserrat-latin-300-normal.woff2?url';
+import anton400 from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
+import '../styles/global.css';
+import { site } from '../data/site';
+import CookieConsent from '../components/layout/CookieConsent.astro';
+import { absoluteUrl } from '../lib/url';
+import {
+  buildGraph,
+  organizationNode,
+  serializeJsonLd,
+  type JsonLdNode,
+} from '../lib/jsonld';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Chemin de la page (ex. '/showroom/') : base du canonical et de og:url. */
+  path?: string;
+  /** Chemin d'une image Open Graph (1200×630) ; défaut : site.ogImage. */
+  image?: string;
+  /** Nœuds JSON-LD propres à la page, ajoutés à l'entreprise dans le @graph. false = aucun JSON-LD. */
+  jsonLd?: JsonLdNode[] | false;
+  robots?: string;
+}
+
+const {
+  title = `${site.name} — Showroom`,
+  description = site.description,
+  path = Astro.url.pathname,
+  image = site.ogImage.src,
+  jsonLd = [],
+  // Piloté par site.indexable (src/data/site.ts) : noindex tant que le site est en construction.
+  robots = site.indexable ? 'index, follow' : 'noindex, nofollow',
+} = Astro.props;
+
+const canonical = absoluteUrl(path);
+const ogImage = absoluteUrl(image);
+const isDefaultImage = image === site.ogImage.src;
+const graph = jsonLd === false ? null : buildGraph([organizationNode(), ...jsonLd]);
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content={robots} />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href={hanken400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={anton400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={city300} as="font" type="font/woff2" crossorigin />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    {
+      isDefaultImage && (
+        <>
+          <meta property="og:image:width" content={String(site.ogImage.width)} />
+          <meta property="og:image:height" content={String(site.ogImage.height)} />
+          <meta property="og:image:alt" content={site.ogImage.alt} />
+        </>
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    {graph && <script type="application/ld+json" set:html={serializeJsonLd(graph)} />}
+  </head>
+  <body class="min-h-screen bg-face-deep font-sans text-stone antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-margin focus:top-space-sm focus:z-skip-link focus:bg-stone focus:px-space-lg focus:py-space-md focus:text-obsidian"
+    >
+      {site.labels.skipToContent}
+    </a>
+    <Preloader />
+    <Marquee />
+    <slot />
+    <CookieConsent />
+  </body>
+</html>

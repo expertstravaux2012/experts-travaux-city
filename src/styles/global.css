@@ -1,0 +1,403 @@
+@import 'tailwindcss';
+
+/* Tokens design system « Faces du cube » — source de vérité : ce fichier et AGENTS.md (section Identité). */
+@theme {
+  /* Surfaces */
+  --color-surface: #faf9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-bright: #faf9f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f3f3;
+  --color-surface-container: #efeded;
+  --color-surface-container-high: #e9e8e8;
+  --color-surface-container-highest: #e3e2e2;
+  --color-surface-variant: #e3e2e2;
+  --color-surface-tint: #605e5e;
+
+  /* Contenu sur surface */
+  --color-on-surface: #1a1c1c;
+  --color-on-surface-variant: #4c4547;
+  --color-inverse-surface: #2f3131;
+  --color-inverse-on-surface: #f1f0f0;
+
+  /* Contours */
+  --color-outline: #7e7577;
+  --color-outline-variant: #cfc4c6;
+
+  /* Primary — noir pur (frontmatter) */
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1c1b1b;
+  --color-on-primary-container: #868383;
+  --color-inverse-primary: #cac5c5;
+
+  /* Secondary — ardoise */
+  --color-secondary: #615e5e;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e7e1e1;
+  --color-on-secondary-container: #676464;
+
+  /* Tertiary — pierre minérale (prose du client ; le #000000 du frontmatter est un artefact d'export).
+     4.1:1 sur le fond : jamais en texte courant. Réservé aux annotations larges (>= 18px / 14px gras),
+     filets et marqueurs graphiques (3:1). */
+  --color-tertiary: #80777c;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #201a1e;
+  --color-on-tertiary-container: #8b8186;
+
+  /* Error */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* Fixed */
+  --color-primary-fixed: #e6e1e1;
+  --color-primary-fixed-dim: #cac5c5;
+  --color-on-primary-fixed: #1c1b1b;
+  --color-on-primary-fixed-variant: #484646;
+  --color-secondary-fixed: #e7e1e1;
+  --color-secondary-fixed-dim: #cac5c5;
+  --color-on-secondary-fixed: #1d1b1b;
+  --color-on-secondary-fixed-variant: #494646;
+  --color-tertiary-fixed: #ebdfe5;
+  --color-tertiary-fixed-dim: #cfc3c9;
+  --color-on-tertiary-fixed: #201a1e;
+  --color-on-tertiary-fixed-variant: #4c4549;
+
+  /* Background */
+  --color-background: #faf9f9;
+  --color-on-background: #1a1c1c;
+
+  /* Tokens issus de la prose (absents du frontmatter) */
+  --color-obsidian: #191818; /* boutons primaires, bordures actives, hover carte */
+  --color-hairline: #c5c3c3; /* filet 1px sur surfaces claires */
+  --color-hairline-inverse: #393737; /* filet 1px sur surfaces sombres (footer, inverse) */
+  --color-on-surface-editorial: #393737; /* texte long-form (text-on-surface-editorial) */
+
+  /* Familles — Montserrat Light porte les titres (la voix du showroom) ; Hanken Grotesk le texte et les libellés
+     (casse de phrase) ; pas de monospace. */
+  --font-display: 'Montserrat', sans-serif;
+  --font-sans: 'Hanken Grotesk', sans-serif;
+  /* Police officielle du nom de marque (wordmark) : dans le Logo uniquement. */
+  --font-wordmark: 'Anton', sans-serif;
+  /* Showroom « City » : police du mot City (logo) — Montserrat Light, interlettrage large. Réservée à la marque. */
+  --font-city: 'Montserrat', sans-serif;
+
+  /* Showroom « City » : seule couleur ajoutée à la charte Experts Travaux (terracotta du logo, échantillonnée sur le favicon).
+     city        #C4603C : 4.1:1 sur blanc, 3.2:1 sur inverse-surface -> graphismes et texte >= 18px uniquement.
+     city-strong #A34A28 : 5.6:1 sur le fond -> texte courant et liens sur fond clair (AA). */
+  --color-city: #c4603c;
+  --color-city-strong: #a34a28;
+
+  /* Showroom « City » : les trois faces du cube du logo deviennent les plans de couleur du site. */
+  --color-face-deep: #1c1b1b; /* fond du site, pied de page */
+  --color-face-dark: #2e2e2e; /* face anthracite du cube */
+  --color-face-mid: #656262; /* face gris chaud (texte blanc : 6:1) */
+  --color-face-light: #d9d6d1; /* face gris clair (texte on-surface : 11:1) */
+  --color-stone: #faf9f9; /* texte sur plans sombres */
+  /* city-on-dark #E8946F : 5.5:1 sur inverse-surface / 7.5:1 sur obsidian (texte « City » sur fond sombre). */
+  /* Sur face-dark : 5.7:1 (AA). Mots-clés allumés du Statement. */
+  --color-city-on-dark: #e8946f;
+  /* Texte posé sur un aplat terracotta (city-strong : 5.6:1) : stone, pas de blanc pur. */
+  --color-on-accent: var(--color-stone);
+  /* Bordure des champs de formulaire (composant d'interface, WCAG 1.4.11 : >= 3:1) :
+     4.4:1 sur face-deep, 3.5:1 sur face-dark. face-mid (2.8:1) est insuffisant. */
+  --color-field-border: #858080;
+
+  /* Échelle typographique. Chaque style = taille + interligne + graisse + tracking
+     (--text-X--line-height / --font-weight / --letter-spacing, Tailwind >= 4.1).
+     La famille n'est pas portable par --text-* : l'associer via font-display / font-sans.
+       text-hero                  clamp 72-192px  0.9   0.1em     (font-city, nom « City » du hero)
+       text-statement             clamp 32-80px   1.1             (font-display, intro géante)
+       text-display-xl            72/80  300 -0.02em   (font-display)
+       text-display-xl-mobile     44/52  300 -0.01em   (font-display, < 768px)
+       text-headline-lg           48/56  300 -0.015em  (font-display)
+       text-headline-lg-mobile    32/40  300           (font-display, < 768px)
+       text-headline-md           32/40  300           (font-display)
+       text-headline-sm           22/30  300 -0.01em   (font-display)
+       text-title-md              18/26  600           (font-sans)
+       text-body-lg               17/28  400           (font-sans)
+       text-body-md               15/24  400           (font-sans)
+       text-body-sm               13/20  400           (font-sans)
+     Libellés : utilitaires label-md / label-sm (Hanken, casse de phrase). */
+  --text-hero: clamp(4.5rem, 15vw, 12rem);
+  --text-hero--line-height: 0.9;
+  --text-hero--letter-spacing: 0.1em;
+
+  --text-statement: clamp(2rem, 5.4vw, 5rem);
+  --text-statement--line-height: 1.1;
+
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: 5rem;
+  --text-display-xl--font-weight: 300;
+  --text-display-xl--letter-spacing: -0.02em;
+
+  --text-display-xl-mobile: 2.75rem;
+  --text-display-xl-mobile--line-height: 3.25rem;
+  --text-display-xl-mobile--font-weight: 300;
+  --text-display-xl-mobile--letter-spacing: -0.01em;
+
+  --text-headline-lg: 3rem;
+  --text-headline-lg--line-height: 3.5rem;
+  --text-headline-lg--font-weight: 300;
+  --text-headline-lg--letter-spacing: -0.015em;
+
+  --text-headline-lg-mobile: 2rem;
+  --text-headline-lg-mobile--line-height: 2.5rem;
+  --text-headline-lg-mobile--font-weight: 300;
+
+  --text-headline-md: 2rem;
+  --text-headline-md--line-height: 2.5rem;
+  --text-headline-md--font-weight: 300;
+
+  --text-headline-sm: 1.375rem;
+  --text-headline-sm--line-height: 1.875rem;
+  --text-headline-sm--font-weight: 300;
+  --text-headline-sm--letter-spacing: -0.01em;
+
+  --text-title-md: 1.125rem;
+  --text-title-md--line-height: 1.625rem;
+  --text-title-md--font-weight: 600;
+
+  --text-body-lg: 1.0625rem;
+  --text-body-lg--line-height: 1.75rem;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 0.9375rem;
+  --text-body-md--line-height: 1.5rem;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm: 0.8125rem;
+  --text-body-sm--line-height: 1.25rem;
+  --text-body-sm--font-weight: 400;
+
+  /* Interlettrages du logo (tracking-wordmark / tracking-city / tracking-slogan). */
+  --tracking-wordmark: 0.08em;
+  --tracking-city: 0.34em;
+  --tracking-slogan: 0.06em;
+
+  /* Espacement — p-space-md, gap-space-lg, py-space-xl… (base 4px : --spacing 0.25rem par défaut) */
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 2rem;
+  --spacing-space-xl: 4rem;
+  --spacing-space-2xl: 8rem;
+
+  /* Grille : gutter / marge — valeur mobile ici, surchargée en tablette/desktop plus bas
+     (gap-gutter, px-margin). */
+  --spacing-gutter: 1rem;
+  --spacing-margin: 1.5rem;
+
+  /* Header fixe : hauteur compacte (in-[.is-compact]:h-header-compact) ; hauteur normale dans @theme static. */
+  --spacing-header-compact: 4.75rem;
+
+  /* Marge basse de l'en-tête de page (pb-intro), alignée sur l'arête en biais du plan suivant. */
+  --spacing-intro: clamp(2rem, 5vw, 4.5rem);
+
+  /* Container 1280px (max-w-site). Nommé « site » : --container-max écraserait max-w-max. */
+  --container-site: 1280px;
+
+  /* Desktop de la grille : 1200px+ (variante desktop:). Tablette = md (768px). */
+  --breakpoint-desktop: 75rem;
+  --breakpoint-wide: 90rem;
+
+  /* Rayons : angles 0px partout, aucune exception (formes = plane / para / para-lg).
+     Les rayons par défaut de Tailwind sont retirés ; ne pas utiliser rounded-full (utilitaire statique). */
+  --radius-*: initial;
+
+  /* Ombres : aucune. */
+  --shadow-*: initial;
+}
+
+/* Tokens lus en CSS brut (balises <style> des composants, scroll-padding) : toujours émis. */
+@theme static {
+  /* Hauteur du header fixe (h-header, pt-header). */
+  --spacing-header: 5rem;
+  --tracking-spaced: 0.2em;
+  /* Hauteur du bandeau Marquee fixe (h-marquee) ; le header et le drawer se calent dessous (top-marquee). */
+  --spacing-marquee: 2.25rem;
+  /* Réserve basse quand le bandeau cookies est affiché (scroll-padding-bottom). Valeurs ESTIMÉES à partir du CSS
+     de CookieConsent.astro (non mesurées), arrondies au-dessus ; à revérifier si le texte, les boutons ou le
+     padding du bandeau changent. Une valeur par disposition du bandeau :
+     - base (< sm, 640px) : tout empilé, 3 boutons pleine hauteur (3 x 56px) ; ~390px à 390px de large,
+       ~415px à 320px (texte sur 4-5 lignes) -> 26rem ;
+     - sm (640px+) : boutons en ligne, texte sur 2 lignes ; ~215px -> 14rem ;
+     - desktop (1200px+) : texte et boutons côte à côte, texte sur 2-3 lignes ; ~145-167px -> 11rem. */
+  --spacing-cookie-banner: 26rem;
+  --spacing-cookie-banner-sm: 14rem;
+  --spacing-cookie-banner-desktop: 11rem;
+
+  /* Échelle d'empilement (utilitaires z-hero-backdrop… z-preloader, définis plus bas).
+     Du plus bas au plus haut : photo du hero < voiles < ombres de l'hélice < contenu < header = drawer
+     (le drawer, plus tard dans le DOM, passe devant) < Marquee < bandeau cookies < lien d'évitement < preloader. */
+  --z-hero-backdrop: -20;
+  --z-hero-layer: -10;
+  --z-hero-shade: -5;
+  --z-header: 50;
+  --z-drawer: 50;
+  --z-marquee: 60;
+  --z-cookie: 90;
+  --z-skip-link: 100;
+  --z-preloader: 200;
+
+  /* Révélation d'un mot (Statement) : le mot est un masque (overflow hidden), son contenu monte de --reveal-from
+     à 0. Délai du mot i = i * --reveal-stagger. Neutralisé sous prefers-reduced-motion (côté composant). */
+  --reveal-duration: 700ms;
+  --reveal-ease: cubic-bezier(0.16, 1, 0.3, 1); /* ease-out expo */
+  --reveal-stagger: 40ms;
+  --reveal-from: 110%; /* départ de translateY, % de la hauteur du mot : sort entièrement du masque */
+}
+
+@layer base {
+  :root {
+    scroll-behavior: smooth;
+    /* Décalage sous le Marquee + le header fixes (couvre aussi le header compact, 0,25rem de marge). */
+    scroll-padding-top: calc(var(--spacing-marquee) + var(--spacing-header));
+    /* Opacité d'un mot « éteint » (Statement) : stone/face-dark ~4.5:1, texte >= 32px (AA large : 3:1). */
+    --opacity-unlit: 0.5;
+    /* Couleur du focus clavier : stone par défaut (le site est sur plans sombres) ; voir utility tone-light. */
+    --focus-ring: var(--color-stone);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Bandeau cookies visible (attribut hidden retiré par le script) : l'élément focalisé ne passe pas dessous.
+     Aucun changement de script requis. */
+  :root:has([data-cookie-banner]:not([hidden])) {
+    scroll-padding-bottom: var(--spacing-cookie-banner);
+  }
+
+  @media (width >= theme(--breakpoint-sm)) {
+    :root:has([data-cookie-banner]:not([hidden])) {
+      scroll-padding-bottom: var(--spacing-cookie-banner-sm);
+    }
+  }
+
+  @media (width >= theme(--breakpoint-desktop)) {
+    :root:has([data-cookie-banner]:not([hidden])) {
+      scroll-padding-bottom: var(--spacing-cookie-banner-desktop);
+    }
+  }
+
+  /* Gutters 1rem / 1.5rem / 2.5rem — marges 1.5rem / 2rem / 4rem (mobile / tablette / desktop) */
+  @media (width >= theme(--breakpoint-md)) {
+    :root {
+      --spacing-gutter: 1.5rem;
+      --spacing-margin: 2rem;
+    }
+  }
+
+  @media (width >= theme(--breakpoint-desktop)) {
+    :root {
+      --spacing-gutter: 2.5rem;
+      --spacing-margin: 4rem;
+    }
+  }
+
+  /* Angles nets par défaut : le design system impose 0px de roundedness, sans exception. */
+  *,
+  *::before,
+  *::after {
+    border-radius: 0;
+  }
+
+  /* Focus clavier : outline 2px, couleur = --focus-ring (stone sur plans sombres : 5.6:1 à 16:1 ;
+     on-surface sur plans clairs via tone-light : 11.9:1 sur face-light, 16:1 sur surface). */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+}
+
+/* À poser sur un plan clair (Section light / surface) : le focus des descendants passe en sombre. */
+@utility tone-light {
+  --focus-ring: var(--color-on-surface);
+}
+
+/* Échelle d'empilement : voir les tokens --z-* dans @theme static. */
+@utility z-hero-backdrop {
+  z-index: var(--z-hero-backdrop);
+}
+@utility z-hero-layer {
+  z-index: var(--z-hero-layer);
+}
+@utility z-hero-shade {
+  z-index: var(--z-hero-shade);
+}
+@utility z-header {
+  z-index: var(--z-header);
+}
+@utility z-drawer {
+  z-index: var(--z-drawer);
+}
+@utility z-marquee {
+  z-index: var(--z-marquee);
+}
+@utility z-cookie {
+  z-index: var(--z-cookie);
+}
+@utility z-skip-link {
+  z-index: var(--z-skip-link);
+}
+@utility z-preloader {
+  z-index: var(--z-preloader);
+}
+
+/* Labels : Hanken Grotesk, casse normale (plus de capitales monospace sur le showroom). */
+@utility label-md {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
+@utility label-sm {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+}
+
+/* Plan de couleur : arête haute en biais (pente douce) qui recouvre le plan précédent, comme deux faces du cube.
+   Le contenu garde sa place : le padding compense la découpe. */
+@utility plane {
+  --cut: clamp(1.5rem, 5vw, 4.5rem);
+  position: relative;
+  margin-top: calc(var(--cut) * -1);
+  padding-top: var(--cut);
+  padding-bottom: var(--cut);
+  clip-path: polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%);
+}
+
+/* Parallélogramme : flancs à ~30° (angle du cube). para = boutons, para-lg = images et tuiles. */
+/* Le clip-path découpe aussi l'outline : le focus d'un élément para est donc un anneau intérieur
+   à deux tons (stone + face-deep, 16:1 entre eux) qui contraste quel que soit l'aplat. */
+@utility para {
+  --skew: 0.75rem;
+  clip-path: polygon(var(--skew) 0, 100% 0, calc(100% - var(--skew)) 100%, 0 100%);
+
+  &:focus-visible {
+    outline-color: transparent;
+    box-shadow:
+      inset 0 0 0 2px var(--color-stone),
+      inset 0 0 0 4px var(--color-face-deep);
+  }
+}
+
+@utility para-lg {
+  --skew: 2rem;
+  clip-path: polygon(var(--skew) 0, 100% 0, calc(100% - var(--skew)) 100%, 0 100%);
+
+  &:focus-visible {
+    outline-color: transparent;
+    box-shadow:
+      inset 0 0 0 2px var(--color-stone),
+      inset 0 0 0 4px var(--color-face-deep);
+  }
+}

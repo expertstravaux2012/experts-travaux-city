@@ -1,0 +1,82 @@
+---
+import { navigation } from '../../data/navigation';
+import { site } from '../../data/site';
+import { signature } from '../../data/home';
+import Button from '../ui/Button.astro';
+import Logo from '../ui/Logo.astro';
+import MobileMenu from './MobileMenu.astro';
+
+const normalize = (path: string) => (path.endsWith('/') ? path : `${path}/`);
+const currentPath = normalize(Astro.url.pathname);
+const ariaCurrent = (href: string) =>
+  !href.includes('#') && normalize(href) === currentPath ? 'page' : undefined;
+const { labels } = site;
+---
+
+<header id="site-header" class="fixed inset-x-0 top-marquee z-header text-stone transition-colors duration-300">
+  <div class="mx-auto flex h-header max-w-site items-center justify-between gap-space-lg px-margin transition-[height] duration-300 in-[.is-compact]:h-header-compact">
+    <a href="/" class="text-lg" aria-label={labels.homeAria}>
+      <Logo slogan={signature.slogan} />
+    </a>
+
+    <nav class="hidden items-center gap-space-lg desktop:flex" aria-label={labels.mainNav}>
+      {
+        navigation.links.map((link) => (
+          <a
+            href={link.href}
+            aria-current={ariaCurrent(link.href)}
+            class="nav-link relative inline-flex min-h-11 items-center text-body-md font-medium"
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <Button variant="primary-light" href={navigation.cta.href}>{navigation.cta.label}</Button>
+    </nav>
+
+    <MobileMenu part="button" ariaCurrent={ariaCurrent} />
+  </div>
+</header>
+
+<MobileMenu part="drawer" ariaCurrent={ariaCurrent} />
+
+<style>
+  header.is-solid {
+    background-color: color-mix(in srgb, var(--color-face-deep) 94%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0.45rem;
+    height: 2px;
+    background: var(--color-city-on-dark);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+  .nav-link:hover::after,
+  .nav-link[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-link::after {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Header : compaction et fond solide dès le scroll.
+  const header = document.getElementById('site-header');
+  if (header) {
+    const update = () => {
+      const scrolled = window.scrollY > 40;
+      header.classList.toggle('is-compact', scrolled);
+      header.classList.toggle('is-solid', scrolled);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  }
+</script>

@@ -1,0 +1,12 @@
+---
+import LegalPage from '../components/layout/LegalPage.astro';
+import { mentionsLegales } from '../data/legal';
+import { seo } from '../data/seo';
+---
+
+<LegalPage
+  path="/mentions-legales/"
+  title={seo.mentionsLegales.title}
+  description={seo.mentionsLegales.description}
+  doc={mentionsLegales}
+/>

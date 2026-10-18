@@ -1,0 +1,103 @@
+---
+// Gabarit des pages légales : en-tête, sommaire ancré, sections de texte.
+import Layout from '../../layouts/Layout.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import PageIntro from '../sections/page/PageIntro.astro';
+import Breadcrumb from '../ui/Breadcrumb.astro';
+import Section from '../ui/Section.astro';
+import Button from '../ui/Button.astro';
+import { breadcrumbNode } from '../../lib/jsonld';
+import { cookieTexts } from '../../data/cookies';
+import { legal, legalLabels, legalPlaceholder, type LegalDocument } from '../../data/legal';
+
+interface Props {
+  path: string;
+  title: string;
+  description: string;
+  doc: LegalDocument;
+}
+
+const { path, title, description, doc } = Astro.props;
+
+const updated = new Date(legal.updatedAt).toLocaleDateString('fr-FR', {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+});
+const chunks = (text: string) => text.split(legalPlaceholder);
+---
+
+<Layout
+  title={title}
+  description={description}
+  path={path}
+  jsonLd={[breadcrumbNode(path, [{ name: doc.h1, path }])]}
+>
+  <Header />
+  <main id="main">
+    <PageIntro title={doc.h1} intro={doc.intro}>
+      <Breadcrumb slot="breadcrumb" items={[{ label: doc.h1 }]} />
+    </PageIntro>
+    <Section>
+      <div class="grid grid-cols-1 gap-space-lg desktop:grid-cols-12 desktop:gap-gutter">
+        <nav aria-label={legalLabels.toc} class="desktop:col-span-4">
+          <div class="flex flex-col gap-space-sm desktop:sticky desktop:top-space-2xl">
+            <span class="label-md text-on-surface">{legalLabels.toc}</span>
+            <ol class="flex flex-col border-l border-hairline">
+              {
+                doc.sections.map((section, i) => (
+                  <li>
+                    <a
+                      href={`#${section.id}`}
+                      class="inline-flex min-h-11 items-center pl-space-md text-body-md text-on-surface underline-offset-4 hover:underline"
+                    >
+                      {i + 1}. {section.title}
+                    </a>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </nav>
+        <div class="flex flex-col gap-space-xl desktop:col-span-8">
+          <p class="label-md text-on-surface-variant">{legalLabels.updated} {updated}</p>
+          {
+            doc.sections.map((section) => (
+              <section
+                id={section.id}
+                aria-labelledby={`${section.id}-title`}
+                class="flex flex-col gap-space-md"
+              >
+                <h2 id={`${section.id}-title`} class="font-display text-headline-md text-on-surface">
+                  {section.title}
+                </h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p class="text-body-lg text-on-surface-editorial">
+                    {chunks(paragraph).map((chunk, i) => (
+                      <>
+                        {i > 0 && (
+                          <mark class="bg-error-container px-space-xs text-on-error-container">
+                            {legalPlaceholder}
+                          </mark>
+                        )}
+                        {chunk}
+                      </>
+                    ))}
+                  </p>
+                ))}
+                {section.cookieSettings && (
+                  <div>
+                    <Button variant="primary" data-cookie-action="open-settings">
+                      {cookieTexts.footerButton}
+                    </Button>
+                  </div>
+                )}
+              </section>
+            ))
+          }
+        </div>
+      </div>
+    </Section>
+  </main>
+  <Footer />
+</Layout>

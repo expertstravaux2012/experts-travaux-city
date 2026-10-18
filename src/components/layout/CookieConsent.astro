@@ -1,0 +1,140 @@
+---
+// Bandeau de consentement + panneau de préférences (<dialog>). Piloté par data-cookie-action.
+import Button from '../ui/Button.astro';
+import { site } from '../../data/site';
+import { consentCategories, cookieTexts as t } from '../../data/cookies';
+---
+
+<div data-cookie-root data-auto-banner={String(site.consent.enabled)}>
+  <div
+    data-cookie-banner
+    hidden
+    role="region"
+    aria-label={t.banner.ariaLabel}
+    class="fixed inset-x-0 bottom-0 z-cookie border-t border-face-mid bg-face-dark text-stone"
+  >
+    <div
+      class="mx-auto flex max-w-site flex-col gap-space-md px-margin py-space-lg desktop:flex-row desktop:items-center desktop:justify-between desktop:gap-gutter"
+    >
+      <div class="flex max-w-3xl flex-col gap-space-xs">
+        <p class="text-title-md text-stone">{t.banner.title}</p>
+        <p class="text-body-md text-stone/90">{t.banner.text}</p>
+      </div>
+      <div class="flex flex-col gap-space-sm sm:flex-row">
+        <Button variant="primary-light" data-cookie-action="accept">{t.banner.accept}</Button>
+        <Button variant="primary-light" data-cookie-action="refuse">{t.banner.refuse}</Button>
+        <Button variant="secondary-light" data-cookie-action="customize">{t.banner.customize}</Button>
+      </div>
+    </div>
+  </div>
+
+  <dialog
+    data-cookie-panel
+    aria-labelledby="cookie-panel-title"
+    class="m-auto w-[calc(100%-2*var(--spacing-margin))] max-w-lg bg-face-dark p-0 text-stone backdrop:bg-face-deep/60 para-lg [--skew:1.5rem]"
+  >
+    <form class="flex flex-col gap-space-lg p-space-lg">
+      <div class="flex flex-col gap-space-sm">
+        <h2 id="cookie-panel-title" class="font-display text-headline-md text-stone">
+          {t.panel.title}
+        </h2>
+        <p class="text-body-md text-stone/90">{t.panel.intro}</p>
+      </div>
+      <ul class="flex flex-col border-t border-face-mid">
+        {
+          consentCategories.map((category) => {
+            const Row = category.required ? 'div' : 'label';
+            return (
+              <li class="border-b border-face-mid">
+                <Row class="flex items-start justify-between gap-space-md py-space-md">
+                  <span class="flex flex-col gap-space-xs">
+                    <span class="text-title-md text-stone">{category.label}</span>
+                    <span class="text-body-sm text-stone/80">{category.description}</span>
+                  </span>
+                  {category.required ? (
+                    <span class="label-md shrink-0 text-stone">{t.panel.alwaysActive}</span>
+                  ) : (
+                    <input
+                      type="checkbox"
+                      data-category={category.id}
+                      class="mt-space-xs h-6 w-6 shrink-0 accent-city-on-dark"
+                    />
+                  )}
+                </Row>
+              </li>
+            );
+          })
+        }
+      </ul>
+      <div class="flex flex-col gap-space-sm sm:flex-row">
+        <Button type="submit" variant="primary-light">{t.panel.save}</Button>
+        <Button variant="secondary-light" data-cookie-action="close">{t.panel.close}</Button>
+      </div>
+    </form>
+  </dialog>
+</div>
+
+<script>
+  import { getConsent, setAllConsent, setConsent } from '../../lib/consent';
+  import type { ConsentChoice } from '../../lib/consent';
+  import type { ConsentCategory } from '../../data/cookies';
+
+  const root = document.querySelector<HTMLElement>('[data-cookie-root]');
+  const banner = root?.querySelector<HTMLElement>('[data-cookie-banner]');
+  const panel = root?.querySelector<HTMLDialogElement>('[data-cookie-panel]');
+  const form = panel?.querySelector<HTMLFormElement>('form');
+
+  if (root && banner && panel && form) {
+    const autoBanner = root.dataset.autoBanner === 'true';
+    const checkboxes = () => form.querySelectorAll<HTMLInputElement>('input[data-category]');
+
+    const refreshBanner = () => {
+      banner.hidden = !(autoBanner && getConsent() === null);
+    };
+    const closePanel = () => {
+      if (panel.open) panel.close();
+    };
+    const openPanel = () => {
+      const current = getConsent();
+      checkboxes().forEach((input) => {
+        input.checked = current?.[input.dataset.category as ConsentCategory] ?? false;
+      });
+      banner.hidden = true;
+      if (!panel.open) panel.showModal();
+    };
+    const decide = (granted: boolean) => {
+      setAllConsent(granted);
+      closePanel();
+      refreshBanner();
+    };
+
+    const actions: Record<string, () => void> = {
+      accept: () => decide(true),
+      refuse: () => decide(false),
+      customize: openPanel,
+      'open-settings': openPanel,
+      close: closePanel,
+    };
+
+    document.addEventListener('click', (event) => {
+      const trigger = (event.target as Element).closest<HTMLElement>('[data-cookie-action]');
+      actions[trigger?.dataset.cookieAction ?? '']?.();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const choice = {} as ConsentChoice;
+      checkboxes().forEach((input) => {
+        choice[input.dataset.category as ConsentCategory] = input.checked;
+      });
+      setConsent(choice);
+      closePanel();
+      refreshBanner();
+    });
+
+    // Échap ou « Fermer » sans choix : le bandeau réapparaît.
+    panel.addEventListener('close', refreshBanner);
+
+    refreshBanner();
+  }
+</script>

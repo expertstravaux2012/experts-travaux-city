@@ -1,0 +1,7 @@
+---
+import LegalPage from '../components/layout/LegalPage.astro';
+import { cgu } from '../data/legal';
+import { seo } from '../data/seo';
+---
+
+<LegalPage path="/cgu/" title={seo.cgu.title} description={seo.cgu.description} doc={cgu} />

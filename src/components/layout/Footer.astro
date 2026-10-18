@@ -1,0 +1,81 @@
+---
+import { navigation } from '../../data/navigation';
+import { site } from '../../data/site';
+import Icon from '../ui/Icon.astro';
+import Logo from '../ui/Logo.astro';
+import { legalLinks } from '../../data/legal';
+import { cookieTexts } from '../../data/cookies';
+import { signature } from '../../data/home';
+
+const year = new Date().getFullYear();
+const { labels } = site;
+const linkClass =
+  'inline-flex min-h-11 items-center gap-3 text-body-md underline-offset-4 hover:underline';
+const linkTone = 'text-stone/90 hover:text-stone';
+---
+
+<footer class="plane bg-face-deep text-stone">
+  <div class="mx-auto max-w-site px-margin py-space-xl">
+    <div class="grid grid-cols-1 gap-space-lg md:grid-cols-3 md:gap-gutter">
+      <div class="flex flex-col gap-4">
+        <a href="/" class="w-fit text-lg" aria-label={labels.homeAria}>
+          <Logo slogan={signature.slogan} />
+        </a>
+        <p class="max-w-xs text-body-md text-stone/80">{signature.baseline}.</p>
+        <ul class="mt-2 flex items-center gap-3">
+          {
+            site.socials.map((social) => (
+              <li>
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  class="para flex h-11 w-12 items-center justify-center bg-stone/15 text-stone transition-colors [--skew:0.5rem] hover:bg-stone hover:text-obsidian"
+                >
+                  <Icon name={social.icon} class="h-5 w-5" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <nav aria-label={labels.footerNav} class="flex flex-col gap-2">
+        <span class="label-md text-stone/70">{labels.footerNavTitle}</span>
+        <ul class="flex flex-col">
+          {
+            [...navigation.links, navigation.cta].map((link) => (
+              <li><a href={link.href} class={`${linkTone} ${linkClass}`}>{link.label}</a></li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="flex flex-col gap-1">
+        <span class="mb-2 label-md text-stone/70">{labels.footerContactTitle}</span>
+        <a href={`mailto:${site.email}`} class={`${linkTone} ${linkClass}`}><Icon name="mail" class="h-5 w-5" />{site.email}</a>
+        <a href={site.phone.href} class={`${linkTone} ${linkClass}`}><Icon name="phone" class="h-5 w-5" />{site.phone.display}</a>
+        {
+          site.address && (
+            <a href={site.address.mapsUrl} target="_blank" rel="noopener noreferrer" class={`${linkTone} ${linkClass}`}>
+              <Icon name="pin" class="mt-0.5 h-5 w-5 shrink-0" />
+              <span>{site.address.street}<br />{site.address.city}</span>
+            </a>
+          )
+        }
+        <a href={site.parent.url} class={`mt-space-md text-city-on-dark hover:text-stone ${linkClass}`}>{site.parent.linkLabel}</a>
+      </div>
+    </div>
+
+    <div class="mt-12 flex flex-col gap-space-md border-t border-stone/20 pt-8 md:flex-row md:items-center md:justify-between">
+      <p class="text-body-sm text-stone/80">© {year} {site.name} · {site.legalLine}</p>
+      <ul class="flex flex-wrap gap-x-space-lg">
+        {legalLinks.map((link) => <li><a href={link.href} class={`${linkTone} ${linkClass}`}>{link.label}</a></li>)}
+        <li>
+          <button type="button" data-cookie-action="open-settings" class={`${linkTone} ${linkClass}`}>{cookieTexts.footerButton}</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>

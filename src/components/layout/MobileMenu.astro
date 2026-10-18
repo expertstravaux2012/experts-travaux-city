@@ -1,0 +1,181 @@
+---
+// Burger + drawer plein écran (< desktop). Le drawer est rendu hors du <header> (backdrop-filter casserait son `fixed`).
+import { navigation } from '../../data/navigation';
+import { site } from '../../data/site';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import Logo from '../ui/Logo.astro';
+
+interface Props {
+  part: 'button' | 'drawer';
+  ariaCurrent: (href: string) => 'page' | undefined;
+}
+
+const { part, ariaCurrent } = Astro.props;
+const { labels, phone, email } = site;
+const contactLink =
+  'inline-flex min-h-11 items-center gap-space-sm label-md text-stone hover:underline hover:underline-offset-4';
+---
+
+{part === 'button' && (
+<button
+  type="button"
+  id="menu-open"
+  class="flex h-12 w-12 items-center justify-center self-center text-stone desktop:hidden"
+  aria-label={labels.openMenu}
+  aria-controls="mobile-menu"
+  aria-expanded="false"
+>
+  <Icon name="menu" class="h-7 w-7" />
+</button>
+)}
+
+{part === 'drawer' && (
+<div
+  id="mobile-menu"
+  class="fixed inset-x-0 bottom-0 top-marquee z-drawer hidden flex-col overflow-y-auto bg-face-deep text-stone desktop:hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label={labels.menu}
+>
+  <div class="flex h-header shrink-0 items-center justify-between px-margin">
+    <a href="/" class="text-lg" aria-label={labels.homeAria}>
+      <Logo />
+    </a>
+    <button
+      type="button"
+      id="menu-close"
+      class="flex h-12 w-12 items-center justify-center text-stone"
+      aria-label={labels.closeMenu}
+    >
+      <Icon name="close" class="h-7 w-7" />
+    </button>
+  </div>
+
+  <nav class="flex flex-1 flex-col px-margin pt-space-md" aria-label={labels.mobileNav}>
+    <ol class="flex flex-col">
+      {
+        navigation.links.map((link, i) => {
+          return (
+            <li class="drawer-item" style={`--i:${i}`}>
+              <a
+                href={link.href}
+                aria-current={ariaCurrent(link.href)}
+                data-menu-link
+                class="block py-space-md font-display text-headline-lg-mobile md:text-headline-lg aria-[current=page]:text-city-on-dark"
+              >
+                {link.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ol>
+
+    <div class="drawer-item mt-space-lg" style={`--i:${navigation.links.length}`}>
+      <Button variant="primary-light" href={navigation.cta.href} class="w-full" data-menu-link>
+        {navigation.cta.label}
+      </Button>
+    </div>
+  </nav>
+
+  <div
+    class="drawer-item mt-space-lg flex shrink-0 flex-col px-margin py-space-md"
+    style={`--i:${navigation.links.length + 1}`}
+  >
+    <a href={phone.href} class={contactLink}>
+      <Icon name="phone" class="h-5 w-5" />
+      {phone.display}
+    </a>
+    <a href={`mailto:${email}`} class={contactLink}>
+      <Icon name="mail" class="h-5 w-5" />
+      {email}
+    </a>
+  </div>
+</div>
+)}
+
+<style>
+  .drawer-item {
+    opacity: 0;
+  }
+  #mobile-menu.is-open .drawer-item {
+    animation: drawer-in 320ms ease-out both;
+    animation-delay: calc(var(--i) * 60ms);
+  }
+  @keyframes drawer-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .drawer-item {
+      opacity: 1;
+    }
+    #mobile-menu.is-open .drawer-item {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const menu = document.getElementById('mobile-menu');
+  const openBtn = document.getElementById('menu-open');
+  const closeBtn = document.getElementById('menu-close');
+  const desktop = window.matchMedia('(min-width: 75rem)');
+
+  const isOpen = () => !!menu && !menu.classList.contains('hidden');
+
+  const setOpen = (open: boolean) => {
+    if (!menu) return;
+    menu.classList.toggle('hidden', !open);
+    menu.classList.toggle('flex', open);
+    menu.classList.toggle('is-open', open);
+    openBtn?.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('overflow-hidden', open);
+    if (open) closeBtn?.focus();
+    else openBtn?.focus();
+  };
+
+  openBtn?.addEventListener('click', () => setOpen(true));
+  closeBtn?.addEventListener('click', () => setOpen(false));
+  menu
+    ?.querySelectorAll('[data-menu-link]')
+    .forEach((link) => link.addEventListener('click', () => setOpen(false)));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) setOpen(false);
+  });
+
+  desktop.addEventListener('change', (e) => {
+    if (e.matches && isOpen()) {
+      menu?.classList.add('hidden');
+      menu?.classList.remove('flex', 'is-open');
+      openBtn?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('overflow-hidden');
+    }
+  });
+
+  // Focus trap : maintient le focus dans le drawer ouvert (aria-modal).
+  menu?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const items = [...menu.querySelectorAll<HTMLElement>('a, button')].filter(
+      (el) => el.getClientRects().length > 0,
+    );
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+</script>

@@ -1,0 +1,20 @@
+---
+// Bandeau défilant fixe en haut de page : le rendez-vous showroom reste à un clic.
+import { site } from '../../data/site';
+import { navigation as nav } from '../../data/navigation';
+const msg = 'Visitez le showroom, venez avec votre projet';
+const items = Array.from({ length: 8 });
+---
+
+<a href={nav.cta.href} class="marquee fixed inset-x-0 top-0 z-marquee flex h-marquee items-center overflow-hidden bg-city-strong text-on-accent focus-visible:-outline-offset-4" data-marquee>
+  <span class="marquee-track flex w-max whitespace-nowrap text-body-sm font-medium" aria-hidden="true">
+    {items.map(() => <span class="px-space-xl">{msg}</span>)}
+  </span>
+  <span class="sr-only">{site.name} : {msg}. {nav.cta.label}</span>
+</a>
+
+<style>
+  .marquee-track { animation: marquee 38s linear infinite; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+</style>
