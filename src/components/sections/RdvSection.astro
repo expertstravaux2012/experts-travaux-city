@@ -1,12 +1,16 @@
 ---
 // Section de prise de rendez-vous : coordonnées + formulaire envoyé à un webhook n8n (PUBLIC_RDV_WEBHOOK_URL).
 import { site } from '../../data/site';
-import { rdvIntro, rdvForm, type RdvIntro } from '../../data/rdv';
+import { rdvIntro, rdvForm, rdvConfirmation, type RdvIntro } from '../../data/rdv';
 import { pourQuelProjet } from '../../data/home';
 import { infosPratiques } from '../../data/showroom';
 import Section from '../ui/Section.astro';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
+import Cube from '../ui/Cube.astro';
+import SalleLabel from '../ui/SalleLabel.astro';
+import SalleScene from '../ui/SalleScene.astro';
+import { etapes } from '../../data/salles';
 
 interface Props {
   /** Textes d'en-tête de la section (la page peut fournir les siens). */
@@ -17,30 +21,33 @@ interface Props {
 const { intro = rdvIntro, id = 'rendez-vous' } = Astro.props;
 const { fields: f } = rdvForm;
 const webhook = import.meta.env.PUBLIC_RDV_WEBHOOK_URL ?? '';
+const numero = etapes.find((e) => e.id === 'rendez-vous')?.numero ?? '';
 const today = new Date().toISOString().slice(0, 10);
 
 const fieldClass =
   'w-full border border-field-border bg-face-deep px-4 py-4 text-body-md text-stone transition-colors placeholder:text-stone/60 focus-visible:border-city-on-dark';
 const labelClass = 'label-md text-stone';
 const linkClass =
-  'inline-flex min-h-11 w-fit items-center gap-3 text-body-md text-stone underline-offset-4 hover:underline';
+  'inline-flex min-h-11 w-fit items-center gap-3 text-body-md text-on-accent underline-offset-4 hover:underline';
+const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
 ---
 
-<Section tone="dark" id={id} labelledby={`${id}-title`}>
+<Section tone="city" reveal id={id} labelledby={`${id}-title`}>
+  <SalleScene class="mb-space-xl flex flex-col gap-space-md">
+    <span class="salle-number-outline absolute right-0 top-0 -z-10 font-display text-salle-number" aria-hidden="true">{numero}</span>
+    <SalleLabel id="rendez-vous" class="text-on-accent" />
+    <h2 id={`${id}-title`} class="text-balance font-display text-giant text-on-accent">{intro.title}</h2>
+  </SalleScene>
   <div class="grid grid-cols-1 gap-space-lg desktop:grid-cols-2 desktop:gap-gutter">
     <div class="flex flex-col gap-8">
-      <div class="flex flex-col gap-space-md">
-        <h2 id={`${id}-title`} class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">{intro.title}</h2>
-        <span class="para block h-1.5 w-24 bg-city [--skew:0.5rem]" aria-hidden="true"></span>
-      </div>
-      <p class="max-w-md text-body-lg text-stone/90">{intro.text}</p>
+      <p class="max-w-md text-body-lg text-on-accent">{intro.text}</p>
 
       <div class="flex max-w-md flex-col gap-space-sm">
-        <h3 class="font-display text-headline-sm text-city-on-dark">{pourQuelProjet.title}</h3>
-        <p class="text-body-md text-stone/90">{pourQuelProjet.text}</p>
+        <h3 class="font-display text-headline-sm text-on-accent">{pourQuelProjet.title}</h3>
+        <p class="text-body-md text-on-accent">{pourQuelProjet.text}</p>
       </div>
 
-      <div class="flex flex-col gap-1 border-l-2 border-city pl-4">
+      <div class="flex flex-col gap-1 border-l-2 border-on-accent pl-4">
         <a href={`mailto:${site.email}`} class={linkClass}>
           <Icon name="mail" class="h-5 w-5" />{site.email}
         </a>
@@ -55,16 +62,16 @@ const linkClass =
             </a>
           )
         }
-        <p class="mt-space-sm text-body-sm text-stone/80">{infosPratiques.surRdv}</p>
+        <p class="mt-space-sm text-body-sm text-on-accent">{infosPratiques.surRdv}</p>
       </div>
     </div>
 
+    <div class="reveal-plane bg-face-deep text-stone shadow-floating" data-scroll-anim>
     <form
       id="rdv-form"
-      class="para-lg flex flex-col gap-5 bg-face-deep px-space-lg py-space-lg [--skew:2rem] sm:px-space-xl sm:py-space-xl"
+      class={`flex flex-col gap-5 ${cardPadding}`}
       data-webhook={webhook}
       data-sending={rdvForm.sending}
-      data-success={rdvForm.success}
       data-error={rdvForm.error}
       data-unavailable={rdvForm.unavailable}
     >
@@ -107,7 +114,7 @@ const linkClass =
       </div>
       <!-- Anti-spam : champ piège invisible, ignoré des humains. -->
       <div class="sr-only" aria-hidden="true">
-        <label for="website">Ne pas remplir</label>
+        <label for="website">{rdvForm.honeypotLabel}</label>
         <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
       </div>
       <label class="flex items-start gap-3 text-body-sm text-stone/85">
@@ -117,6 +124,14 @@ const linkClass =
       <Button variant="accent" type="submit" class="w-full">{rdvForm.submit}</Button>
       <p id="rdv-status" role="status" aria-live="polite" class="text-body-md text-stone"></p>
     </form>
+    <div role="status" aria-live="polite">
+      <div hidden id="rdv-confirm" data-scroll-anim class={`flex flex-col items-center gap-space-md text-center ${cardPadding}`}>
+        <Cube label={rdvConfirmation.illustrationAlt} animation="close" class="h-auto w-40" />
+        <h3 id="rdv-confirm-title" tabindex="-1" class="font-display text-headline-md">{rdvConfirmation.title}</h3>
+        <p class="max-w-md text-body-lg">{rdvConfirmation.text}</p>
+      </div>
+    </div>
+    </div>
   </div>
 </Section>
 
@@ -124,7 +139,8 @@ const linkClass =
   const form = document.getElementById('rdv-form') as HTMLFormElement | null;
   const status = document.getElementById('rdv-status');
   if (form && status) {
-    const { webhook, sending, success, error, unavailable } = form.dataset;
+    const { webhook, sending, error, unavailable } = form.dataset;
+    const confirm = document.getElementById('rdv-confirm');
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -144,7 +160,12 @@ const linkClass =
         });
         if (!res.ok) throw new Error(String(res.status));
         form.reset();
-        status.textContent = success ?? '';
+        status.textContent = '';
+        form.hidden = true;
+        if (confirm) {
+          confirm.hidden = false;
+          document.getElementById('rdv-confirm-title')?.focus();
+        }
       } catch {
         status.textContent = error ?? '';
       } finally {

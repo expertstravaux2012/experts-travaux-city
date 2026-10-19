@@ -26,17 +26,6 @@ export const signature = {
   baseline: 'Un seul interlocuteur, de la conception à la livraison',
 } as const;
 
-export const statement = {
-  text: 'Le showroom Experts Travaux City, à Toulouse, vous reçoit sur rendez-vous pour préparer votre projet de rénovation.',
-  /** Mots de `text` mis en couleur terracotta (ponctuation retirée par le composant). */
-  highlight: ['showroom', 'Toulouse', 'rendez-vous'],
-  body: 'Choisissez vos matériaux, comparez vos options et posez vos questions à la personne qui suivra votre chantier. Venez avec vos idées ou un début de plan : nous les ordonnons avec vous. Vous décidez en confiance avant de lancer vos travaux.',
-  cta: { label: 'Prendre rendez-vous', href: '/#rendez-vous' },
-} as const;
-
-/** H2 de la grille des six univers, sous le texte du Statement. */
-export const universTitle = 'Six univers pour votre projet';
-
 /** Bloc « Pour quel projet » : adossé aux motifs du formulaire (rdv.ts). À placer par astro-builder. */
 export const pourQuelProjet = {
   title: 'Pour quel projet venir au showroom ?',

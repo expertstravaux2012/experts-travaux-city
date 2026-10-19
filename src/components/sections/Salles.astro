@@ -1,0 +1,57 @@
+---
+// Les six salles de la visite. L'image est jointe à `realisations` par `categorie` : aucune URL dupliquée.
+import { salles, salleSur, indiceSouris, visite } from '../../data/salles';
+import { realisations } from '../../data/realisations';
+import Salle from '../ui/Salle.astro';
+import Pastille from '../ui/Pastille.astro';
+import Button from '../ui/Button.astro';
+
+const imageOf = (categorie: string) => realisations.find((r) => r.categorie === categorie)!;
+const SALLE_LUMIERE = 'luminaires';
+---
+
+{
+  salles.map((salle, i) => {
+    const dark = i % 2 === 1;
+    const titleId = `${salle.id}-title`;
+    const lumiere = salle.id === SALLE_LUMIERE;
+    return (
+      <Salle
+        id={salle.id}
+        labelledby={titleId}
+        numero={salle.numero}
+        image={imageOf(salle.categorie)}
+        alt={salle.alt}
+        tone={dark ? 'dark' : 'light'}
+        side={i % 2 === 0 ? 'left' : 'right'}
+        lumiere={lumiere}
+      >
+        <div class="flex flex-col items-start gap-space-md">
+          <div class="flex flex-wrap items-center gap-x-space-md gap-y-space-xs">
+            <Pastille>{salle.titre}</Pastille>
+            <p class="label-md">{salleSur(salle.numero)}</p>
+          </div>
+          <h2 id={titleId} class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">
+            <span class="salle-line">
+              <span class="salle-line-inner" style="--line:0">{salle.accroche}</span>
+            </span>
+          </h2>
+          <p class="max-w-prose text-body-lg">{salle.texte}</p>
+          {salle.themes && (
+            <ul class="flex flex-wrap gap-space-sm" role="list">
+              {salle.themes.map((t) => (
+                <li>
+                  <Pastille>{t}</Pastille>
+                </li>
+              ))}
+            </ul>
+          )}
+          {lumiere && <p class="label-md hidden pointer-fine:block">{indiceSouris}</p>}
+          <div class="mt-space-sm">
+            <Button variant={dark ? 'accent' : 'primary'} href={visite.versRdv.href} icon="arrow-right">{salle.cta}</Button>
+          </div>
+        </div>
+      </Salle>
+    );
+  })
+}

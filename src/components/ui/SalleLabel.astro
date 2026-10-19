@@ -1,0 +1,22 @@
+---
+// Puce de salle : filet + « Salle 07 · La méthode ». La couleur vient du parent (currentColor).
+import { etapes, salleNumero } from '../../data/salles';
+
+interface Props {
+  /** Id de l'étape (data/salles.ts : methode, apropos, rendez-vous…). */
+  id: string;
+  class?: string;
+}
+
+const { id, class: className = '' } = Astro.props;
+const etape = etapes.find((e) => e.id === id);
+---
+
+{
+  etape && (
+    <p class={`label-md flex items-center gap-space-md ${className}`}>
+      <span class="block h-(--rail-thickness) w-space-xl bg-current" aria-hidden="true"></span>
+      {salleNumero(etape.numero)} · {etape.planLabel}
+    </p>
+  )
+}

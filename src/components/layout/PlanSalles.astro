@@ -1,0 +1,60 @@
+---
+// Plan du showroom. part="button" : bouton « Plan » du header (ouvre la boîte de dialogue).
+// part="dialog" : <dialog> modal en grille de 10 cases (ordre de `etapes`), monté en fin de page.
+// <dialog>.showModal() rend le reste de la page inerte, piège le focus et gère Échap.
+import { etapes, visite, salleNumero } from '../../data/salles';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  part: 'button' | 'dialog';
+}
+
+const { part } = Astro.props;
+const { plan } = visite;
+---
+
+{
+  part === 'button' && (
+    <button
+      type="button"
+      data-plan-toggle
+      data-cursor="plan"
+      aria-expanded="false"
+      aria-controls="plan-salles"
+      aria-haspopup="dialog"
+      aria-label={plan.ariaOpen}
+      class="plan-trigger para shrink-0"
+    >
+      {plan.button}
+    </button>
+  )
+}
+
+{
+  part === 'dialog' && (
+    <dialog id="plan-salles" data-plan-overlay aria-label={plan.title} class="plan-overlay z-plan m-0 h-full max-h-none w-full max-w-none border-0 p-0">
+      <nav aria-label={plan.ariaNav} class="mx-auto flex min-h-full w-full max-w-(--plan-max-width) flex-col justify-center gap-space-lg px-margin py-space-2xl">
+        <div class="flex items-center justify-between gap-space-md">
+          <p class="font-display text-headline-md">{plan.title}</p>
+          <button type="button" data-plan-close aria-label={plan.ariaClose} class="plan-trigger para shrink-0 gap-space-sm">
+            <Icon name="close" class="h-5 w-5" />
+            {plan.close}
+          </button>
+        </div>
+        <div class="plan-grid">
+          {etapes.map((e) => (
+            <a href={`/#${e.id}`} data-etape-link data-cursor="entrer" class="plan-cell para">
+              <span class="label-sm">{salleNumero(e.numero)}</span>
+              <span class="font-display text-headline-sm">{e.planLabel}</span>
+            </a>
+          ))}
+        </div>
+      </nav>
+    </dialog>
+  )
+}
+
+<script>
+  import { initPlan } from '../../lib/visite';
+  initPlan();
+</script>

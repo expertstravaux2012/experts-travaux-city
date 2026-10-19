@@ -53,7 +53,9 @@ const graph = jsonLd === false ? null : buildGraph([organizationNode(), ...jsonL
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <script is:inline define:vars={{ preSrc: preloaderImage }}>
+    {
+      site.showPreloader && (
+        <script is:inline define:vars={{ preSrc: preloaderImage }}>
       try {
         var r = matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (!r && !sessionStorage.getItem('city-pre') && location.pathname === '/') {
@@ -65,7 +67,9 @@ const graph = jsonLd === false ? null : buildGraph([organizationNode(), ...jsonL
           setTimeout(function () { document.documentElement.classList.remove('preload'); }, 3600);
         }
       } catch (e) {}
-    </script>
+        </script>
+      )
+    }
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="robots" content={robots} />
@@ -107,7 +111,7 @@ const graph = jsonLd === false ? null : buildGraph([organizationNode(), ...jsonL
     >
       {site.labels.skipToContent}
     </a>
-    <Preloader />
+    {site.showPreloader && <Preloader />}
     <Marquee />
     <slot />
     <CookieConsent />

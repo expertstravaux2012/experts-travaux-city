@@ -1,0 +1,52 @@
+---
+// Rail horizontal fixe en bas (>= md) : une cible par étape, flèches précédent / suivant, étiquette de l'étape courante.
+// Sans JS : liens d'ancre statiques. La cale ci-dessous réserve sa hauteur en fin de page.
+import { etapes, visite, salleSur } from '../../data/salles';
+import Icon from '../ui/Icon.astro';
+
+const { rail } = visite;
+---
+
+<div class="hidden h-rail md:block" aria-hidden="true"></div>
+<nav data-rail aria-label={rail.ariaLabel} class="rail-bar z-rail">
+  <a
+    data-rail-prev
+    role="link"
+    aria-disabled="true"
+    aria-label={visite.precedente}
+    class="rail-arrow para aria-disabled:opacity-(--opacity-rail-idle)"
+  >
+    <Icon name="arrow-right" class="h-4 w-4 -scale-x-100" />
+  </a>
+  <ul class="flex" role="list">
+    {
+      etapes.map((e) => (
+        <li>
+          <a
+            href={`/#${e.id}`}
+            data-etape-link
+            data-label={`${e.numero} ${e.planLabel}`}
+            class="rail-link"
+            aria-label={`${salleSur(e.numero)} : ${e.planLabel}`}
+          />
+        </li>
+      ))
+    }
+  </ul>
+  <a
+    data-rail-next
+    data-cursor="suivant"
+    href={`/#${etapes[1].id}`}
+    aria-label={visite.suivante}
+    class="rail-arrow para aria-disabled:opacity-(--opacity-rail-idle)"
+  >
+    <Icon name="arrow-right" class="h-4 w-4" />
+  </a>
+  <span data-rail-label aria-hidden="true" class="rail-label"></span>
+</nav>
+
+<script>
+  import { initRail, initParallax } from '../../lib/visite';
+  initRail();
+  initParallax();
+</script>

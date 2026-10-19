@@ -97,7 +97,7 @@
   --color-face-light: #d9d6d1; /* face gris clair (texte on-surface : 11:1) */
   --color-stone: #faf9f9; /* texte sur plans sombres */
   /* city-on-dark #E8946F : 5.5:1 sur inverse-surface / 7.5:1 sur obsidian (texte « City » sur fond sombre). */
-  /* Sur face-dark : 5.7:1 (AA). Mots-clés allumés du Statement. */
+  /* Sur face-dark : 5.7:1 (AA). */
   --color-city-on-dark: #e8946f;
   /* Texte posé sur un aplat terracotta (city-strong : 5.6:1) : stone, pas de blanc pur. */
   --color-on-accent: var(--color-stone);
@@ -109,7 +109,6 @@
      (--text-X--line-height / --font-weight / --letter-spacing, Tailwind >= 4.1).
      La famille n'est pas portable par --text-* : l'associer via font-display / font-sans.
        text-hero                  clamp 72-192px  0.9   0.1em     (font-city, nom « City » du hero)
-       text-statement             clamp 32-80px   1.1             (font-display, intro géante)
        text-display-xl            72/80  300 -0.02em   (font-display)
        text-display-xl-mobile     44/52  300 -0.01em   (font-display, < 768px)
        text-headline-lg           48/56  300 -0.015em  (font-display)
@@ -124,9 +123,6 @@
   --text-hero: clamp(4.5rem, 15vw, 12rem);
   --text-hero--line-height: 0.9;
   --text-hero--letter-spacing: 0.1em;
-
-  --text-statement: clamp(2rem, 5.4vw, 5rem);
-  --text-statement--line-height: 1.1;
 
   --text-display-xl: 4.5rem;
   --text-display-xl--line-height: 5rem;
@@ -196,6 +192,11 @@
   /* Marge basse de l'en-tête de page (pb-intro), alignée sur l'arête en biais du plan suivant. */
   --spacing-intro: clamp(2rem, 5vw, 4.5rem);
 
+  /* Libellé de taille label-sm (utilitaire label-sm, rail-label, cursor-label). */
+  --text-label-sm: 0.75rem;
+  --text-label-sm--line-height: 1rem;
+  --text-label-sm--font-weight: 500;
+
   /* Container 1280px (max-w-site). Nommé « site » : --container-max écraserait max-w-max. */
   --container-site: 1280px;
 
@@ -207,8 +208,21 @@
      Les rayons par défaut de Tailwind sont retirés ; ne pas utiliser rounded-full (utilitaire statique). */
   --radius-*: initial;
 
-  /* Ombres : aucune. */
+  /* Ombres : aucune, sauf l'élévation de la carte « face du cube » (hairline + ombre portée douce). */
   --shadow-*: initial;
+  --shadow-floating: 0 0 0 1px var(--color-hairline-inverse), 0 1.5rem 3rem -1rem rgb(0 0 0 / 0.5);
+
+  /* Titre géant (RdvSection) : font-display, Light. 3.5rem = 56px (large : AA 3:1 suffit, même sur city). */
+  --text-giant: clamp(3.5rem, 11vw, 9rem);
+  --text-giant--line-height: 0.95;
+  --text-giant--font-weight: 300;
+  --text-giant--letter-spacing: -0.02em;
+
+  /* Numéro géant d'une salle (font-display, Light) : décoratif (aria-hidden), graphisme >= 3:1 seulement. */
+  --text-salle-number: clamp(8rem, 22vw, 18rem);
+  --text-salle-number--line-height: 0.8;
+  --text-salle-number--font-weight: 300;
+  --text-salle-number--letter-spacing: -0.04em;
 }
 
 /* Tokens lus en CSS brut (balises <style> des composants, scroll-padding) : toujours émis. */
@@ -218,6 +232,12 @@
   --tracking-spaced: 0.2em;
   /* Hauteur du bandeau Marquee fixe (h-marquee) ; le header et le drawer se calent dessous (top-marquee). */
   --spacing-marquee: 2.25rem;
+  /* Chrome fixe = Marquee + header (pt-chrome, scroll-padding-top). */
+  --spacing-chrome: calc(var(--spacing-marquee) + var(--spacing-header));
+  /* Cible tactile minimale (WCAG 2.5.8 / 44px) : min-h-target, min-w-target. */
+  --spacing-target: 2.75rem;
+  /* Filet de 1px (bordures fines, hairline). */
+  --stroke-hairline: 1px;
   /* Réserve basse quand le bandeau cookies est affiché (scroll-padding-bottom). Valeurs ESTIMÉES à partir du CSS
      de CookieConsent.astro (non mesurées), arrondies au-dessus ; à revérifier si le texte, les boutons ou le
      padding du bandeau changent. Une valeur par disposition du bandeau :
@@ -242,21 +262,153 @@
   --z-skip-link: 100;
   --z-preloader: 200;
 
-  /* Révélation d'un mot (Statement) : le mot est un masque (overflow hidden), son contenu monte de --reveal-from
-     à 0. Délai du mot i = i * --reveal-stagger. Neutralisé sous prefers-reduced-motion (côté composant). */
-  --reveal-duration: 700ms;
-  --reveal-ease: cubic-bezier(0.16, 1, 0.3, 1); /* ease-out expo */
-  --reveal-stagger: 40ms;
-  --reveal-from: 110%; /* départ de translateY, % de la hauteur du mot : sort entièrement du masque */
+  /* Ligne de titre masquée (salle-line) : le contenu monte de --reveal-from à 0 (% de sa hauteur : sort entièrement du masque). */
+  --reveal-from: 110%;
+
+  /* Animations (cube du Parcours, plans, confirmation). Durées et courbes : classes arbitraires
+     duration-(--dur-base), ease-(--ease-out-expo), ou var() en CSS de composant. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 200ms;
+  --dur-base: 500ms;
+  --dur-slow: 900ms;
+
+  /* Plans de couleur : décalage vertical d'entrée, et plage de la timeline view() (entrée du plan dans la fenêtre). */
+  --plane-shift: 3rem;
+  --plane-range-start: entry 0%;
+  --plane-range-end: entry 60%;
+  /* Cube du Parcours (animation-timeline: scroll()/view()) : plage de construction d'une face. */
+  --cube-range-start: cover 10%;
+  --cube-range-end: cover 45%;
+
+  /* Porte (ancienne, plus utilisée par la page ; --door-skew sert à l'intro) : deux panneaux qui s'écartent au scroll (view()).
+     Plage de l'ouverture, hauteur de la porte (100svh), biais des arêtes de jonction (= para-lg). */
+  --door-range-start: cover 10%;
+  --door-range-end: cover 50%;
+  --door-height: 100svh;
+  --door-skew: 2rem;
+
+  /* Salle : hauteur minimale du gabarit. Le numéro géant (text-salle-number) est dans @theme. */
+  --salle-min-height: 100svh;
+
+  /* Rail de progression : zone cliquable (>= 44px, WCAG 2.5.8), traits (repos / actif), opacité au repos.
+     Repos : stone à 0.6 sur face-deep = ~6.7:1 ; actif : city-on-dark = 7.3:1 sur face-deep. */
+  --rail-target: 2.75rem;
+  --rail-tick: 1rem;
+  --rail-tick-active: 2rem;
+  --rail-thickness: 0.125rem;
+  --rail-thickness-active: 0.25rem;
+  --opacity-rail-idle: 0.6;
+  /* Largeur minimale de l'étiquette de salle du rail (rail-label) : évite le saut de mise en page (= ancien min-w-40). */
+  --rail-label-width: 10rem;
+
+  /* Plan des salles (overlay d'ancres) : largeur maximale du contenu. */
+  --plan-max-width: 64rem;
+
+  /* Rail et plan s'insèrent dans l'échelle d'empilement : rail (sous le header), plan (au-dessus du Marquee). */
+  --z-rail: 40;
+  --z-plan: 70;
+
+  /* ---- Salle plein cadre (salle-frame) ---- */
+  /* Voiles (face-deep) : --scrim-photo = bord du calque de lumière. --scrim-soft = zones sans texte (numéro, décor).
+     Panneaux : aucun flou (pas de backdrop-filter), le contraste est celui du voile seul. Pire cas (photo blanche
+     sous le panneau sombre, photo noire sous le clair) :
+       sombre  88 % face-deep : stone 11.3:1 ; city-on-dark 5.0:1 (7.3:1 sur face-deep opaque)
+       clair   92 % face-light : on-surface 10.1:1 ; city-strong 3.4:1 (grand texte uniquement, H2).
+     Variante compacte (< md, panneau plus bas, photo visible) :
+       sombre  86 % : stone 10.5:1 ; city-on-dark 4.7:1 (AA texte courant tenu ; 82 % donnait 4.1:1, refusé)
+       clair   90 % : on-surface 9.6:1 ; city-strong 3.3:1 (grand texte uniquement). */
+  --scrim-photo: 66%;
+  --scrim-soft: 35%;
+  --scrim-panel-dark: 88%;
+  --scrim-panel-light: 92%;
+  --scrim-panel-dark-compact: 86%;
+  --scrim-panel-light-compact: 90%;
+  --skew-panel: 3rem; /* biais de l'arête du panneau (= 48px de la maquette) */
+  --salle-panel-width: 40rem;
+  /* Variante compacte (salle-panel-compact, < md) : hauteur maximale du panneau (le reste = photo visible). */
+  --salle-panel-compact-height: 68svh;
+
+  /* Numéro en contour : décoratif (aria-hidden), exempté de contraste ; stone à 50 % sur voile sombre. */
+  --stroke-outline: 0.125rem;
+  --stroke-outline-alpha: 50%;
+
+  /* Entrées au scroll (timeline nommée --salle sur salle-frame). Sans support ou en reduced-motion : état final. */
+  --enter-photo-scale: 1.12;
+  --enter-panel-shift: 3rem;
+  --enter-number-shift: 20%; /* % de la hauteur du numéro */
+  --enter-photo-start: entry 0%;
+  --enter-photo-end: entry 100%;
+  --enter-panel-start: entry 10%;
+  --enter-panel-end: entry 60%;
+  --enter-line-from: 15%; /* début de la ligne 0 du titre ; ligne n = from + n x step (variable --line) */
+  --enter-line-to: 65%;
+  --enter-line-step: 8%;
+
+  /* Parallaxe souris (desktop, pointeur fin, motion autorisé) : --mx / --my in [-1, 1] posées par le script.
+     La photo va à l'opposé, le numéro dans le sens ; la photo déborde d'autant (inset négatif, salle en clip). */
+  --parallax-photo-x: 1.875rem;
+  --parallax-photo-y: 1.25rem;
+  --parallax-number-x: 2.75rem;
+  --parallax-number-y: 1.625rem;
+  --dur-parallax: 1600ms;
+  --ease-parallax: cubic-bezier(0.2, 0.7, 0.1, 1);
+
+  /* Calque de lumière (Luminaires) : voile radial pré-rendu, 140 % de la salle, déplacé en transform
+     (--light-shift = % de sa propre taille). Texte uniquement dans le panneau : le disque central est transparent. */
+  --light-size: 140%;
+  --light-shift: 20%;
+  --light-core: 15%;
+  --light-edge: 70%;
+
+  /* ---- Rail horizontal (bas, >= md) ---- */
+  --spacing-rail: 3.5rem;
+  /* Bouton du plan posé au-dessus du rail (md:bottom-plan-offset). */
+  --spacing-plan-offset: calc(var(--spacing-rail) + var(--spacing-space-md));
+
+  /* ---- Plan : grille de 10 cases ---- */
+  --plan-row-min: 7rem;
+  --plan-band-min: 4rem;
+
+  /* Marge verticale des lignes de titre masquées (salle-line), en em : laisse passer jambages et accents. */
+  --salle-line-pad: 0.1em;
+
+  /* ---- Parcours (Méthode) ---- */
+  /* Escalier des 4 cartes (desktop) : hauteur minimale de la carte i = base + i x pas (utilitaire stair, var --i). */
+  --stair-base: 15rem;
+  --stair-step: 3rem;
+  /* Cube illustré (utilitaire cube-size) : largeur mobile, puis md+. */
+  --cube-width: 12rem;
+  --cube-width-md: 16rem;
+  /* Marqueur des garanties (utilitaire marker) : petit parallélogramme terracotta (graphisme). */
+  --marker-width: 1.25rem;
+  --marker-height: 0.75rem;
+  --marker-skew: 0.35rem;
+  /* Biais intermédiaire des cartes (para-md). */
+  --skew-md: 1.5rem;
+
+  /* ---- Intro porte (CSS pur) : progression 700 ms puis ouverture 600 ms = 1,3 s ; calque retiré à 1,4 s (<= 1,5 s). ---- */
+  --dur-intro-progress: 700ms;
+  --dur-intro-open: 600ms;
+  --dur-intro-total: 1400ms;
+  --intro-bar-width: 12rem;
+  --z-intro: 200;
+
+  /* ---- Curseur d'accompagnement (le curseur natif reste visible) ---- */
+  --cursor-size: 3.75rem; /* état actif ; repos = x --cursor-scale-rest (~34px) */
+  --cursor-scale-rest: 0.57;
+  --cursor-skew: -16deg; /* parallélogramme, pas de cercle (angles non arrondis) */
+  --cursor-ring-border: 0.1875rem; /* trait stone */
+  --cursor-ring-outline: 0.125rem; /* trait face-deep (deuxième ton) */
+  --cursor-fill: color-mix(in srgb, var(--color-city) 35%, transparent);
+  --z-cursor: 210;
 }
 
 @layer base {
   :root {
     scroll-behavior: smooth;
     /* Décalage sous le Marquee + le header fixes (couvre aussi le header compact, 0,25rem de marge). */
-    scroll-padding-top: calc(var(--spacing-marquee) + var(--spacing-header));
-    /* Opacité d'un mot « éteint » (Statement) : stone/face-dark ~4.5:1, texte >= 32px (AA large : 3:1). */
-    --opacity-unlit: 0.5;
+    scroll-padding-top: var(--spacing-chrome);
     /* Couleur du focus clavier : stone par défaut (le site est sur plans sombres) ; voir utility tone-light. */
     --focus-ring: var(--color-stone);
   }
@@ -264,6 +416,13 @@
   @media (prefers-reduced-motion: reduce) {
     :root {
       scroll-behavior: auto;
+    }
+  }
+
+  /* Rail horizontal fixe en bas (>= md) : les ancres ne passent pas dessous. */
+  @media (width >= theme(--breakpoint-md)) {
+    :root {
+      scroll-padding-bottom: var(--spacing-rail);
     }
   }
 
@@ -348,6 +507,705 @@
 @utility z-preloader {
   z-index: var(--z-preloader);
 }
+@utility z-rail {
+  z-index: var(--z-rail);
+}
+@utility z-plan {
+  z-index: var(--z-plan);
+}
+@utility z-intro {
+  z-index: var(--z-intro);
+}
+@utility z-cursor {
+  z-index: var(--z-cursor);
+}
+
+/* Teinte d'une salle, alternée salle-dark / salle-light (se combine avec salle-frame et plane).
+   salle-light : face-light + on-surface (11.9:1).
+   salle-dark  : face-dark + stone (12.9:1), texte accentué city-on-dark (5.7:1).
+   --panel-bg-compact : fond du panneau compact (salle-panel-compact, < md), voile plus léger. */
+@utility salle-dark {
+  background-color: var(--color-face-dark);
+  color: var(--color-stone);
+  --panel-bg: color-mix(in srgb, var(--color-face-deep) var(--scrim-panel-dark), transparent);
+  --panel-bg-compact: color-mix(in srgb, var(--color-face-deep) var(--scrim-panel-dark-compact), transparent);
+  --panel-fg: var(--color-stone);
+  --panel-accent: var(--color-city-on-dark);
+}
+
+@utility salle-light {
+  background-color: var(--color-face-light);
+  color: var(--color-on-surface);
+  --focus-ring: var(--color-on-surface);
+  --panel-bg: color-mix(in srgb, var(--color-face-light) var(--scrim-panel-light), transparent);
+  --panel-bg-compact: color-mix(in srgb, var(--color-face-light) var(--scrim-panel-light-compact), transparent);
+  --panel-fg: var(--color-on-surface);
+  /* city-strong sur face-light : 4.1:1, grand texte (titre) seulement ; jamais city. */
+  --panel-accent: var(--color-city-strong);
+}
+
+/* ===== Salle plein cadre : section 100svh, photo en fond, voile, panneau en biais, numéro en contour =====
+   Ordre du DOM (tous absolus sauf le panneau) : salle-photo, salle-scrim, [salle-light-layer], salle-number-outline,
+   salle-panel. À combiner avec salle-dark / salle-light (fournissent --panel-*) et plane.
+   Mobile : colonne, panneau en bas, photo visible au-dessus ; md+ : rangée, panneau à gauche (data-side="left", défaut)
+   ou à droite (data-side="right") sur le conteneur salle-frame. */
+@utility salle-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  min-height: var(--salle-min-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  @media (width >= theme(--breakpoint-md)) {
+    flex-direction: row;
+    justify-content: flex-start;
+
+    &[data-side='right'] {
+      justify-content: flex-end;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    view-timeline: --salle block;
+  }
+}
+
+/* <img> en fond (jamais background-image : LCP, srcset). Déborde des amplitudes de parallaxe. */
+@utility salle-photo {
+  position: absolute;
+  inset-block: calc(var(--parallax-photo-y) * -1);
+  inset-inline: calc(var(--parallax-photo-x) * -1);
+  width: calc(100% + 2 * var(--parallax-photo-x));
+  height: calc(100% + 2 * var(--parallax-photo-y));
+  max-width: none;
+  object-fit: cover;
+  z-index: -1;
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: salle-photo-in linear both;
+      animation-timeline: --salle;
+      animation-range: var(--enter-photo-start) var(--enter-photo-end);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      translate: calc(var(--mx, 0) * var(--parallax-photo-x) * -1) calc(var(--my, 0) * var(--parallax-photo-y) * -1);
+      transition: translate var(--dur-parallax) var(--ease-parallax);
+    }
+  }
+}
+
+/* Voile décoratif (zones sans texte). */
+@utility salle-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: color-mix(in srgb, var(--color-face-deep) var(--scrim-soft), transparent);
+}
+
+/* Panneau en biais (même famille que para-lg, arête de 3rem). Texte = --panel-fg sur --panel-bg. */
+@utility salle-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding-block: var(--spacing-space-xl);
+
+  @supports (justify-content: safe center) {
+    justify-content: safe center;
+  }
+
+  padding-inline: var(--spacing-margin) calc(var(--spacing-margin) + var(--skew-panel));
+  background-color: var(--panel-bg);
+  color: var(--panel-fg);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--skew-panel)) 100%, 0 100%);
+
+  @media (width >= theme(--breakpoint-md)) {
+    width: min(100%, var(--salle-panel-width));
+  }
+
+  [data-side='right'] > & {
+    padding-inline: calc(var(--spacing-margin) + var(--skew-panel)) var(--spacing-margin);
+    clip-path: polygon(var(--skew-panel) 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: salle-panel-in var(--ease-out-expo) both;
+      animation-timeline: --salle;
+      animation-range: var(--enter-panel-start) var(--enter-panel-end);
+    }
+  }
+}
+
+/* Variante compacte du panneau (< md), à ajouter à salle-panel (Entrée, ou toute salle au texte long) : hauteur
+   plafonnée en svh pour laisser la photo visible au-dessus, marge verticale réduite, voile plus léger (AA tenu,
+   ratios dans @theme). Défile en interne si le contenu dépasse le plafond (aucun texte rogné). md+ : sans effet.
+   Le décalage sous le chrome (pt-chrome) ne s'y applique pas : le panneau est en bas de l'écran. */
+@utility salle-panel-compact {
+  @media (width < theme(--breakpoint-md)) {
+    max-height: var(--salle-panel-compact-height);
+    overflow-y: auto;
+    padding-block: var(--spacing-space-lg);
+    background-color: var(--panel-bg-compact, var(--panel-bg));
+  }
+}
+
+/* Mot-clé du titre : accent de la salle (city-on-dark sur panneau sombre, city-strong sur clair, titre uniquement). */
+@utility salle-accent {
+  color: var(--panel-accent);
+}
+
+/* Titre en lignes masquées : <h2><span class="salle-line"><span class="salle-line-inner" style="--line:0">…. */
+@utility salle-line {
+  display: block;
+  overflow: clip;
+  padding-block: var(--salle-line-pad);
+  margin-block: calc(var(--salle-line-pad) * -1);
+}
+
+@utility salle-line-inner {
+  display: block;
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: salle-line-up var(--ease-out-expo) both;
+      animation-timeline: --salle;
+      animation-range:
+        entry calc(var(--enter-line-from) + var(--enter-line-step) * var(--line, 0))
+        entry calc(var(--enter-line-to) + var(--enter-line-step) * var(--line, 0));
+    }
+  }
+}
+
+/* Calque de lumière (Luminaires) : voile radial pré-rendu, déplacé en transform (aucun dégradé animé).
+   Sans pointeur fin ou en reduced-motion : statique, centré. */
+@utility salle-light-layer {
+  position: absolute;
+  inset: calc((100% - var(--light-size)) / 2);
+  width: var(--light-size);
+  height: var(--light-size);
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    transparent 0%,
+    transparent var(--light-core),
+    color-mix(in srgb, var(--color-face-deep) var(--scrim-photo), transparent) var(--light-edge)
+  );
+
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    transform: translate3d(calc(var(--mx, 0) * var(--light-shift)), calc(var(--my, 0) * var(--light-shift)), 0);
+    transition: transform var(--dur-parallax) var(--ease-parallax);
+  }
+}
+
+/* Numéro en contour (aria-hidden, décoratif). À poser avec text-salle-number et font-display ; position par le composant
+   (côté opposé au panneau). Parallaxe via `translate`, entrée via `transform` : les deux coexistent. */
+@utility salle-number-outline {
+  color: transparent;
+  -webkit-text-stroke: var(--stroke-outline) color-mix(in srgb, var(--color-stone) var(--stroke-outline-alpha), transparent);
+  user-select: none;
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: salle-number-in var(--ease-out-expo) both;
+      animation-timeline: --salle;
+      animation-range: var(--enter-panel-start) var(--enter-panel-end);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      translate: calc(var(--mx, 0) * var(--parallax-number-x)) calc(var(--my, 0) * var(--parallax-number-y));
+      transition: translate var(--dur-parallax) var(--ease-parallax);
+    }
+  }
+}
+
+@keyframes salle-photo-in {
+  from {
+    scale: var(--enter-photo-scale);
+  }
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes salle-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--enter-panel-shift));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes salle-line-up {
+  from {
+    translate: 0 var(--reveal-from);
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes salle-number-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--enter-number-shift));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Rail de progression : chaque lien (zone >= 44px) dessine son trait en ::before ; l'état actif est posé par le
+   script (aria-current). Fond face-deep fourni par rail-bar (contraste indépendant de la salle). */
+@utility rail-link {
+  display: grid;
+  place-items: center;
+  width: var(--rail-target);
+  height: var(--rail-target);
+
+  &::before {
+    content: '';
+    width: var(--rail-tick);
+    height: var(--rail-thickness);
+    background-color: var(--color-stone);
+    opacity: var(--opacity-rail-idle);
+    transition:
+      width var(--dur-fast) var(--ease-out-expo),
+      height var(--dur-fast) var(--ease-out-expo),
+      opacity var(--dur-fast) var(--ease-out-expo),
+      background-color var(--dur-fast) var(--ease-out-expo);
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 1;
+  }
+
+  &[aria-current='true']::before,
+  &[aria-current='location']::before {
+    width: var(--rail-tick-active);
+    height: var(--rail-thickness-active);
+    background-color: var(--color-city-on-dark);
+    opacity: 1;
+  }
+}
+
+/* Plan des salles : overlay plein écran (face-deep / stone, 16.4:1). Pas de display ici : l'attribut hidden
+   reste opérant. Ouverture/fermeture gérées par le composant. Entrée courante : city-on-dark (7.3:1). */
+@utility plan-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-face-deep);
+  color: var(--color-stone);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Rail horizontal (bas), masqué sous md. Fond face-deep propre : stone 16.2:1, trait au repos 6.6:1, actif
+   city-on-dark 7.3:1. Les rail-link existants (trait horizontal, élargi à l'état actif) servent tels quels.
+   Réserver md:pb-rail en bas de page. rail-label = étiquette de la salle courante (aria-hidden, aria-current porte l'info). */
+@utility rail-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-space-sm);
+  height: var(--spacing-rail);
+  padding-inline: var(--spacing-margin);
+  background-color: var(--color-face-deep);
+  color: var(--color-stone);
+  border-top: var(--stroke-hairline) solid var(--color-hairline-inverse);
+
+  @media (width >= theme(--breakpoint-md)) {
+    display: flex;
+  }
+}
+
+@utility rail-label {
+  min-width: var(--rail-label-width);
+  font-family: var(--font-sans);
+  font-size: var(--text-label-sm);
+  line-height: var(--text-label-sm--line-height);
+  font-weight: var(--text-label-sm--font-weight);
+  color: var(--color-city-on-dark);
+  white-space: nowrap;
+}
+
+/* Bouton « Plan » du header : à combiner avec para. Cible >= 44px (--spacing-target). Fond face-deep propre
+   (indépendant de la photo sous le header transparent) : stone 16.2:1 ; survol face-dark : stone 12.9:1 ; ouvert
+   (aria-expanded="true") : city-on-dark 7.3:1 sur face-deep. Focus : anneau intérieur de para (stone + face-deep). */
+@utility plan-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-space-sm);
+  min-height: var(--spacing-target);
+  min-width: var(--spacing-target);
+  padding-inline: calc(var(--spacing-space-md) + var(--skew, 0.75rem));
+  background-color: var(--color-face-deep);
+  color: var(--color-stone);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-md);
+  line-height: var(--text-body-md--line-height);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out-expo),
+    color var(--dur-fast) var(--ease-out-expo);
+
+  &:hover {
+    background-color: var(--color-face-dark);
+  }
+
+  &[aria-expanded='true'] {
+    color: var(--color-city-on-dark);
+  }
+}
+
+/* Flèche précédent / suivant : zone >= 44px, à combiner avec para. */
+@utility rail-arrow {
+  display: grid;
+  place-items: center;
+  width: var(--rail-target);
+  height: var(--rail-target);
+  color: var(--color-stone);
+  background-color: var(--color-face-dark);
+
+  &:hover {
+    background-color: var(--color-face-mid);
+  }
+}
+
+/* Plan : grille de 10 cases (ordre du DOM : entrée, cuisine, salle de bain, luminaires, carreaux, bois, peinture,
+   méthode, maison, rendez-vous). < md : 2 colonnes, entrée et bandeaux pleine largeur ; md+ : 4 colonnes,
+   cases hautes (cuisine, carreaux, peinture), larges (entrée, bois), 3 bandeaux. */
+@utility plan-grid {
+  display: grid;
+  gap: var(--spacing-space-md);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(var(--plan-row-min), auto);
+
+  & > :first-child,
+  & > :nth-child(n + 8) {
+    grid-column: 1 / -1;
+    min-height: var(--plan-band-min);
+  }
+
+  @media (width >= theme(--breakpoint-md)) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(var(--plan-row-min), 1fr)) repeat(3, minmax(var(--plan-band-min), auto));
+    grid-template-areas:
+      'e e c k'
+      's p c k'
+      'l p b b'
+      'm m m m'
+      'a a a a'
+      'r r r r';
+
+    & > :nth-child(n) {
+      grid-column: auto;
+      min-height: 0;
+    }
+    & > :nth-child(1) { grid-area: e; }
+    & > :nth-child(2) { grid-area: c; }
+    & > :nth-child(3) { grid-area: s; }
+    & > :nth-child(4) { grid-area: l; }
+    & > :nth-child(5) { grid-area: k; }
+    & > :nth-child(6) { grid-area: b; }
+    & > :nth-child(7) { grid-area: p; }
+    & > :nth-child(8) { grid-area: m; }
+    & > :nth-child(9) { grid-area: a; }
+    & > :nth-child(10) { grid-area: r; }
+  }
+}
+
+/* Case du plan : à combiner avec para. stone sur face-dark 12.9:1 ; courante city-on-dark 5.7:1.
+   Survol = anneau, jamais de changement de fond (city-on-dark échoue sur face-mid). */
+@utility plan-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--spacing-space-md) calc(var(--spacing-space-md) + var(--skew, 0.75rem));
+  background-color: var(--color-face-dark);
+  color: var(--color-stone);
+
+  &:hover {
+    box-shadow: inset 0 0 0 2px var(--color-city-on-dark);
+  }
+
+  &[aria-current='true'],
+  &[aria-current='location'] {
+    color: var(--color-city-on-dark);
+  }
+}
+
+/* Intro porte : 100 % CSS, 1,4 s, aucun overflow sur html (le calque est en overflow: clip). Deux panneaux
+   (face-deep / face-dark) + logo et barre. Le calque (intro-end, durée = 1,4 s, fill both) et les panneaux
+   (intro-open-*) passent en visibility:hidden à la fin ; il ne reçoit jamais le pointeur. À poser aria-hidden. Masqué si reduced-motion, ou si le script de session
+   pose data-intro-seen sur <html> (une fois par session). Le contenu de la page est déjà peint dessous. */
+@keyframes intro-end {
+  from {
+    visibility: visible;
+  }
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Panneaux de l'intro : ouverture puis visibility:hidden en fin d'animation (fill-mode both), en plus du calque. */
+@keyframes intro-open-left {
+  to {
+    transform: translateX(-100%);
+    visibility: hidden;
+  }
+}
+
+@keyframes intro-open-right {
+  to {
+    transform: translateX(100%);
+    visibility: hidden;
+  }
+}
+
+@keyframes intro-bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes intro-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+@property --intro-pct {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes intro-count {
+  to {
+    --intro-pct: 100;
+  }
+}
+
+@utility intro {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-intro);
+  overflow: clip;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  animation: intro-end var(--dur-intro-total) linear both;
+
+  :root[data-intro-seen] & {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
+@utility intro-panel-left {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 50%;
+  background-color: var(--color-face-deep);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--door-skew)) 100%, 0 100%);
+  animation: intro-open-left var(--dur-intro-open) var(--ease-in-out) var(--dur-intro-progress) both;
+}
+
+@utility intro-panel-right {
+  position: absolute;
+  inset-block: 0;
+  left: calc(50% - var(--door-skew));
+  right: 0;
+  background-color: var(--color-face-dark);
+  clip-path: polygon(var(--door-skew) 0, 100% 0, 100% 100%, 0 100%);
+  animation: intro-open-right var(--dur-intro-open) var(--ease-in-out) var(--dur-intro-progress) both;
+}
+
+/* Logo + barre + compteur : s'efface quand les panneaux s'ouvrent. */
+@utility intro-content {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-space-md);
+  color: var(--color-stone);
+  animation: intro-fade var(--dur-fast) linear var(--dur-intro-progress) both;
+}
+
+/* Piste (hairline-inverse) + remplissage city-on-dark 7.3:1 sur face-deep ; décoratif. */
+@utility intro-bar {
+  position: relative;
+  width: var(--intro-bar-width);
+  height: var(--rail-thickness-active);
+  background-color: var(--color-hairline-inverse);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-city-on-dark);
+    transform-origin: left;
+    animation: intro-bar-fill var(--dur-intro-progress) var(--ease-out-expo) both;
+  }
+}
+
+/* Compteur 0 à 100 % : <span class="intro-count label-md"></span> vide, valeur générée (stone 16.2:1). */
+@utility intro-count {
+  font-variant-numeric: tabular-nums;
+  counter-reset: intro-pct var(--intro-pct);
+  animation: intro-count var(--dur-intro-progress) linear both;
+
+  &::after {
+    content: counter(intro-pct) ' %';
+  }
+}
+
+/* Curseur d'accompagnement : le curseur natif reste visible. Absent au toucher et en reduced-motion.
+   Structure : <div class="cursor-follower" aria-hidden="true"><div class="cursor-ring"></div><span class="cursor-label"></span></div>.
+   Le script déplace .cursor-follower (transform), pose data-ready (visible) et data-state="link" (actif, agrandi),
+   remplit .cursor-label (mot, vide = masqué). Anneau à deux tons (stone + face-deep) lisible sur tout fond ;
+   l'étiquette est un aplat face-deep / stone (16.2:1). */
+@utility cursor-follower {
+  display: none;
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--z-cursor);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-fast) linear;
+
+    &[data-ready] {
+      opacity: 1;
+    }
+  }
+}
+
+@utility cursor-ring {
+  position: absolute;
+  width: var(--cursor-size);
+  height: var(--cursor-size);
+  margin: calc(var(--cursor-size) / -2) 0 0 calc(var(--cursor-size) / -2);
+  border: var(--cursor-ring-border) solid var(--color-stone);
+  outline: var(--cursor-ring-outline) solid var(--color-face-deep);
+  transform: skewX(var(--cursor-skew)) scale(var(--cursor-scale-rest));
+  transition:
+    transform var(--dur-base) var(--ease-out-expo),
+    background-color var(--dur-base) var(--ease-out-expo);
+
+  [data-state='link'] > & {
+    transform: skewX(var(--cursor-skew)) scale(1);
+    background-color: var(--cursor-fill);
+  }
+}
+
+@utility cursor-label {
+  position: absolute;
+  top: 0;
+  left: calc(var(--cursor-size) / 2 + var(--spacing-space-sm));
+  translate: 0 -50%;
+  padding: var(--spacing-space-xs) var(--spacing-space-sm);
+  background-color: var(--color-face-deep);
+  color: var(--color-stone);
+  font-family: var(--font-sans);
+  font-size: var(--text-label-sm);
+  line-height: var(--text-label-sm--line-height);
+  font-weight: var(--text-label-sm--font-weight);
+  white-space: nowrap;
+
+  &:empty {
+    display: none;
+  }
+}
+
+/* Porte (ancienne section scroll, plus utilisée par la page : remplacée par intro) : deux panneaux (face-mid / face-dark) qui s'écartent au scroll. Sans support de animation-timeline
+   ou en reduced-motion : porte de hauteur nulle, rognée, donc ouverte et sans effet (rien ne bloque ni ne masque).
+   Le contenu est dans le HTML dès le départ. Ne pas poser data-scroll-anim ici (il forcerait transform: none). */
+@keyframes door-open-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes door-open-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@utility door {
+  position: relative;
+  height: 0;
+  overflow: clip;
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      height: var(--door-height);
+    }
+  }
+}
+
+@utility door-panel-left {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 50%;
+  background-color: var(--color-face-mid);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--door-skew)) 100%, 0 100%);
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: door-open-left var(--ease-in-out) both;
+      animation-timeline: view();
+      animation-range: var(--door-range-start) var(--door-range-end);
+    }
+  }
+}
+
+@utility door-panel-right {
+  position: absolute;
+  inset-block: 0;
+  left: calc(50% - var(--door-skew));
+  right: 0;
+  background-color: var(--color-face-dark);
+  clip-path: polygon(var(--door-skew) 0, 100% 0, 100% 100%, 0 100%);
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: door-open-right var(--ease-in-out) both;
+      animation-timeline: view();
+      animation-range: var(--door-range-start) var(--door-range-end);
+    }
+  }
+}
 
 /* Labels : Hanken Grotesk, casse normale (plus de capitales monospace sur le showroom). */
 @utility label-md {
@@ -359,9 +1217,9 @@
 
 @utility label-sm {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 500;
+  font-size: var(--text-label-sm);
+  line-height: var(--text-label-sm--line-height);
+  font-weight: var(--text-label-sm--font-weight);
 }
 
 /* Plan de couleur : arête haute en biais (pente douce) qui recouvre le plan précédent, comme deux faces du cube.
@@ -373,6 +1231,64 @@
   padding-top: var(--cut);
   padding-bottom: var(--cut);
   clip-path: polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%);
+}
+
+/* Entrée d'un plan au scroll (timeline view()). Sans support, ou en reduced-motion : état final visible. */
+@keyframes plane-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--plane-shift));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility reveal-plane {
+  @supports (animation-timeline: view()) {
+    animation: plane-in var(--ease-out-expo) both;
+    animation-timeline: view();
+    animation-range: var(--plane-range-start) var(--plane-range-end);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --plane-shift: 0rem;
+    --dur-intro-progress: 0ms;
+    --dur-intro-open: 0ms;
+    --dur-parallax: 0ms;
+  }
+
+  /* Intro, curseur, parallaxe, entrées de salle : déjà absents ou neutres (garde no-preference) ; filet de sécurité
+     pour les états finaux visibles. */
+  .salle-photo,
+  .salle-panel,
+  .salle-line-inner,
+  .salle-number-outline,
+  .salle-light-layer {
+    animation: none !important;
+    animation-timeline: auto !important;
+    translate: none !important;
+    scale: none !important;
+    transition: none !important;
+  }
+
+  /* Tout effet piloté par le scroll : désactivé, état final affiché (aucun contenu masqué).
+     Composants du lot : poser [data-scroll-anim] sur l'élément animé (cube, plans, confirmation). */
+  .reveal-plane,
+  [data-scroll-anim],
+  [data-scroll-anim] * {
+    animation: none !important;
+    animation-timeline: auto !important;
+    transition-duration: 0ms !important;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Parallélogramme : flancs à ~30° (angle du cube). para = boutons, para-lg = images et tuiles. */
@@ -388,6 +1304,45 @@
       inset 0 0 0 2px var(--color-stone),
       inset 0 0 0 4px var(--color-face-deep);
   }
+}
+
+@utility para-md {
+  --skew: var(--skew-md);
+  clip-path: polygon(var(--skew) 0, 100% 0, calc(100% - var(--skew)) 100%, 0 100%);
+
+  &:focus-visible {
+    outline-color: transparent;
+    box-shadow:
+      inset 0 0 0 2px var(--color-stone),
+      inset 0 0 0 4px var(--color-face-deep);
+  }
+}
+
+/* Parcours : carte d'escalier (desktop), hauteur minimale = base + i x pas ; l'index est posé en style="--i:N". */
+@utility stair {
+  @media (width >= theme(--breakpoint-desktop)) {
+    min-height: calc(var(--stair-base) + var(--stair-step) * var(--i, 0));
+  }
+}
+
+/* Parcours : largeur du cube illustré (mobile, puis md+). */
+@utility cube-size {
+  width: var(--cube-width);
+
+  @media (width >= theme(--breakpoint-md)) {
+    width: var(--cube-width-md);
+  }
+}
+
+/* Parcours : marqueur des garanties, parallélogramme terracotta décoratif (aria-hidden). Autonome : ne pas
+   combiner avec para (son --skew et son clip-path entreraient en conflit). */
+@utility marker {
+  display: block;
+  flex-shrink: 0;
+  width: var(--marker-width);
+  height: var(--marker-height);
+  background-color: var(--color-city);
+  clip-path: polygon(var(--marker-skew) 0, 100% 0, calc(100% - var(--marker-skew)) 100%, 0 100%);
 }
 
 @utility para-lg {

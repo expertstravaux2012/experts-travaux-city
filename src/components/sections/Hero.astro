@@ -2,11 +2,12 @@
 // Entrée : les photos s'enroulent en colimaçon ; en défilant, la caméra descend la spirale (Three.js, chargé à la demande).
 // Sans WebGL, avec mouvement réduit ou économie de données : photo plein cadre + vignettes (repli statique).
 import { hero } from '../../data/home';
+import { entree } from '../../data/salles';
 import { imageSrcset, realisations } from '../../data/realisations';
 import Button from '../ui/Button.astro';
 ---
 
-<section id="hero" class="hero relative bg-face-deep text-stone" data-hero data-pin="7">
+<section id={entree.id} class="hero relative bg-face-deep text-stone" data-hero data-pin="7">
   <div class="hero-pin sticky top-0 isolate flex h-[100svh] min-h-[34rem] flex-col justify-end overflow-hidden" data-stage>
     <!-- Repli statique : fond photo -->
     <div class="hero-static absolute inset-0 z-hero-backdrop" aria-hidden="true">

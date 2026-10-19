@@ -127,7 +127,7 @@ export function startHelix(cfg: HelixConfig) {
 
   const frame = (now: number) => {
     raf = 0;
-    if (!visible || !ready || !renderer) return;
+    if (disposed || !visible || !ready || !renderer) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     const p = progress();

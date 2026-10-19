@@ -1,0 +1,53 @@
+---
+// Cadre d'une salle plein écran : photo, voile, (calque de lumière), numéro en contour, puis panneau en biais (slot).
+// Le contenu du panneau est fourni par la section (Salles, Entree). Le panneau reste le dernier enfant du DOM.
+import { imageSrcset, type Realisation } from '../../data/realisations';
+
+interface Props {
+  id: string;
+  /** Id du titre qui nomme la région. */
+  labelledby: string;
+  /** Numéro décoratif en contour (« 03 »). */
+  numero: string;
+  image: Realisation;
+  alt: string;
+  tone?: 'dark' | 'light';
+  side?: 'left' | 'right';
+  /** Image du premier écran (LCP) : chargement immédiat, haute priorité. */
+  eager?: boolean;
+  /** Calque de lumière qui suit le pointeur (Luminaires). */
+  lumiere?: boolean;
+  /** Panneau compact sous md (photo visible) : pour les textes longs. */
+  compact?: boolean;
+}
+
+const { id, labelledby, numero, image, alt, tone = 'dark', side = 'left', eager = false, lumiere = false, compact = false } = Astro.props;
+
+const toneClass = tone === 'dark' ? 'salle-dark' : 'salle-light';
+const numberSide = side === 'left' ? 'right-0' : 'left-0';
+---
+
+<section id={id} aria-labelledby={labelledby} data-salle data-side={side} class={`salle-frame ${toneClass}`}>
+  <img
+    src={image.image}
+    srcset={imageSrcset(image.image)}
+    sizes="100vw"
+    width={image.width}
+    height={image.height}
+    alt={alt}
+    aria-hidden={alt === '' ? 'true' : undefined}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+    decoding="async"
+    class="salle-photo"
+  />
+  <div class="salle-scrim" aria-hidden="true"></div>
+  {lumiere && <div class="salle-light-layer" aria-hidden="true"></div>}
+  <span
+    class={`salle-number-outline absolute top-0 font-display text-salle-number md:top-auto md:bottom-0 ${numberSide}`}
+    aria-hidden="true">{numero}</span
+  >
+  <div class:list={['salle-panel', compact && 'salle-panel-compact']}>
+    <slot />
+  </div>
+</section>

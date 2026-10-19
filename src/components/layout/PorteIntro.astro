@@ -1,0 +1,30 @@
+---
+// Intro « porte » : deux panneaux qui s'ouvrent après une barre de progression (CSS pur, 1,4 s, une fois par session).
+// Décor aria-hidden, jamais de focus piégé ; le contenu de la page est déjà dans le HTML dessous.
+// Reduced-motion : calque absent (CSS). Le script ne fait que mémoriser la session et permettre de passer l'intro.
+import { intro } from '../../data/salles';
+import Logo from '../ui/Logo.astro';
+---
+
+<script is:inline>
+  try {
+    var d = document.documentElement;
+    if (sessionStorage.getItem('city-intro')) d.setAttribute('data-intro-seen', '');
+    else {
+      sessionStorage.setItem('city-intro', '1');
+      addEventListener('click', function () { d.setAttribute('data-intro-seen', ''); }, { once: true });
+    }
+  } catch (e) {}
+</script>
+
+<div class="intro" aria-hidden="true" data-intro>
+  <div class="intro-panel-left"></div>
+  <div class="intro-panel-right"></div>
+  <div class="intro-content">
+    <Logo class="text-3xl" />
+    <p class="label-md">{intro.label}</p>
+    <div class="intro-bar"></div>
+    <span class="intro-count label-md"></span>
+    <p class="label-sm">{intro.skip}</p>
+  </div>
+</div>

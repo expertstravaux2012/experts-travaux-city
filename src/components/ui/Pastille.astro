@@ -1,0 +1,10 @@
+---
+// Puce en parallélogramme : nom de la salle, mention d'entrée, thèmes. Hérite la couleur du texte du panneau.
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<span class={`label-sm para inline-flex items-center bg-current/10 px-space-md py-space-xs ${className}`}><slot /></span>
