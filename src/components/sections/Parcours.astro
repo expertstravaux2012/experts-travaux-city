@@ -18,7 +18,7 @@ const lines = at < 0 ? [{ text: title, accent: false }] : [
 const last = etapes.length - 1;
 ---
 
-<Section tone="deep" id="methode" reveal porte="mid" labelledby="methode-title">
+<Section tone="deep" id="methode" reveal porte="mid" tall labelledby="methode-title">
   <SalleScene class="mb-space-xl flex flex-col gap-space-lg md:grid md:grid-cols-[1fr_auto] md:gap-x-space-lg md:gap-y-space-md">
     <div class="salle-panel flex-1 md:row-span-2 md:self-center [--panel-bg:var(--color-face-dark)] [--panel-fg:var(--color-stone)] [--panel-accent:var(--color-city-on-dark)]">
       <SalleLabel id="methode" class="mb-space-md text-city-on-dark" />
@@ -40,7 +40,7 @@ const last = etapes.length - 1;
       etapes.map((etape, i) => (
         <li
           class:list={[
-            'para-md reveal-plane flex flex-col gap-space-sm px-space-xl py-space-lg stair',
+            'para-md desktop:reveal-plane flex flex-col gap-space-sm px-space-xl py-space-lg stair',
             i === last ? 'bg-city-strong text-on-accent' : 'bg-face-dark text-stone',
           ]}
           style={`--i:${i}`}
