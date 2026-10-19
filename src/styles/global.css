@@ -197,11 +197,19 @@
   --text-label-sm--line-height: 1rem;
   --text-label-sm--font-weight: 500;
 
+  /* Nom d'une case du plan sous narrow (< 375px) : plus petit que headline-sm (22px) pour tenir dans la case. */
+  --text-plan-cell-narrow: 1rem;
+  --text-plan-cell-narrow--line-height: 1.25rem;
+
   /* Container 1280px (max-w-site). Nommé « site » : --container-max écraserait max-w-max. */
   --container-site: 1280px;
 
   /* Desktop de la grille : 1200px+ (variante desktop:). Tablette = md (768px). */
   --breakpoint-desktop: 75rem;
+  /* Petits mobiles : 26rem (416px), sous sm (40rem). Variantes xs: (>= 416px) et max-xs: (< 416px). */
+  --breakpoint-xs: 26rem;
+  /* Très petits mobiles : 23.4375rem (375px). Sert à la media (width < theme(--breakpoint-narrow)) : 320 et 360 px. */
+  --breakpoint-narrow: 23.4375rem;
   --breakpoint-wide: 90rem;
 
   /* Rayons : angles 0px partout, aucune exception (formes = plane / para / para-lg).
@@ -281,12 +289,32 @@
   --cube-range-start: cover 10%;
   --cube-range-end: cover 45%;
 
-  /* Porte (ancienne, plus utilisée par la page ; --door-skew sert à l'intro) : deux panneaux qui s'écartent au scroll (view()).
-     Plage de l'ouverture, hauteur de la porte (100svh), biais des arêtes de jonction (= para-lg). */
-  --door-range-start: cover 10%;
-  --door-range-end: cover 50%;
-  --door-height: 100svh;
-  --door-skew: 2rem;
+  /* Biais des arêtes de jonction des panneaux de l'intro (= para-lg). */
+  --intro-skew: 2rem;
+
+  /* ---- Porte entre salles (porte, porte-battant-*, porte-filet) : battants superposés à la salle, pilotés par la
+     timeline --salle de salle-frame (aucune hauteur ajoutée). Jonction : diagonale haut 56 % / bas 44 % (clip-path statique).
+     Ouverture ±75 % de la largeur (chaque battant ne couvre que 56 %). Entrée (porte-in) : fermée -> ouverte ;
+     sortie (porte-out) : ouverte -> fermée. Filet city-on-dark (7,3:1 sur face-deep), décoratif. ---- */
+  --porte-seam-top: 56%;
+  --porte-seam-bottom: 44%;
+  --porte-open-shift: 75%;
+  --ease-porte: cubic-bezier(0.77, 0, 0.18, 1);
+  /* Aucune couverture à la jonction : la porte sortante se ferme sur exit 0-35 % (fermée à exit 35 %), l'entrante reste
+     fermée jusqu'à entry 50 % (fill backwards) puis s'ouvre : marge de 15 % de la fenêtre (~135 px à 900 px) où les deux
+     sont fermées (exit 40 % ne laissait que 9 px, exit 50 % un liseré de 20-40 px). Fin d'entrée à entry 90 % (et non
+     100 %) : une ancre pose le haut de la salle sous le chrome (~87 % de l'entrée), elle doit arriver ouverte.
+     Sortie : fill forwards (fermée après exit 35 %). Entrée de page : la première salle n'a que la sortie, ouverte avant exit 0 %. */
+  --porte-range-in-start: entry 50%;
+  --porte-range-in-end: entry 90%;
+  --porte-range-out-start: exit 0%;
+  --porte-range-out-end: exit 35%;
+  --porte-filet-width: 0.1875rem;
+  --porte-filet-height: 4.375rem;
+  --porte-filet-skew: -6deg;
+  --porte-filet-gap: 2.5rem; /* distance du filet à la jonction, sur chaque battant */
+  /* Au-dessus du contenu de la salle (contexte d'empilement local : salle-frame isole), sous le rail (40). */
+  --z-porte: 30;
 
   /* Salle : hauteur minimale du gabarit. Le numéro géant (text-salle-number) est dans @theme. */
   --salle-min-height: 100svh;
@@ -889,9 +917,9 @@
   }
 }
 
-/* Plan : grille de 10 cases (ordre du DOM : entrée, cuisine, salle de bain, luminaires, carreaux, bois, peinture,
-   méthode, maison, rendez-vous). < md : 2 colonnes, entrée et bandeaux pleine largeur ; md+ : 4 colonnes,
-   cases hautes (cuisine, carreaux, peinture), larges (entrée, bois), 3 bandeaux. */
+/* Plan : grille de 10 cases (ordre du DOM = ordre de lecture = ordre de tab = 00 à 09 sur tous formats). < md : 2 colonnes,
+   entrée et bandeaux pleine largeur ; md+ : 4 colonnes en mosaïque par zones (--aire posée par case, grid-area :
+   e e c s / l l c k / b b p k / m m m m / a a a a / r r r r), 3 bandeaux. */
 @utility plan-grid {
   display: grid;
   gap: var(--spacing-space-md);
@@ -908,9 +936,9 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-rows: repeat(3, minmax(var(--plan-row-min), 1fr)) repeat(3, minmax(var(--plan-band-min), auto));
     grid-template-areas:
-      'e e c k'
-      's p c k'
-      'l p b b'
+      'e e c s'
+      'l l c k'
+      'b b p k'
       'm m m m'
       'a a a a'
       'r r r r';
@@ -919,16 +947,6 @@
       grid-column: auto;
       min-height: 0;
     }
-    & > :nth-child(1) { grid-area: e; }
-    & > :nth-child(2) { grid-area: c; }
-    & > :nth-child(3) { grid-area: s; }
-    & > :nth-child(4) { grid-area: l; }
-    & > :nth-child(5) { grid-area: k; }
-    & > :nth-child(6) { grid-area: b; }
-    & > :nth-child(7) { grid-area: p; }
-    & > :nth-child(8) { grid-area: m; }
-    & > :nth-child(9) { grid-area: a; }
-    & > :nth-child(10) { grid-area: r; }
   }
 }
 
@@ -941,6 +959,21 @@
   padding: var(--spacing-space-md) calc(var(--spacing-space-md) + var(--skew, 0.75rem));
   background-color: var(--color-face-dark);
   color: var(--color-stone);
+  min-width: 0;
+
+  /* < 375px (320 et 360 px) : colonnes de ~128-150px, le nom ne tient pas à 22px. Marge intérieure réduite (le biais
+     de para reste dégagé), nom en --text-plan-cell-narrow, retour à la ligne et césure autorisés : rien n'est rogné.
+     >= 375px : inchangé. Hauteur de case >= --plan-row-min (> 44px). */
+  @media (width < theme(--breakpoint-narrow)) {
+    padding-inline: calc(var(--spacing-space-sm) + var(--skew, 0.75rem));
+
+    & > :last-child {
+      font-size: var(--text-plan-cell-narrow);
+      line-height: var(--text-plan-cell-narrow--line-height);
+      overflow-wrap: anywhere;
+      hyphens: auto;
+    }
+  }
 
   &:hover {
     box-shadow: inset 0 0 0 2px var(--color-city-on-dark);
@@ -1032,17 +1065,17 @@
   left: 0;
   width: 50%;
   background-color: var(--color-face-deep);
-  clip-path: polygon(0 0, 100% 0, calc(100% - var(--door-skew)) 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--intro-skew)) 100%, 0 100%);
   animation: intro-open-left var(--dur-intro-open) var(--ease-in-out) var(--dur-intro-progress) both;
 }
 
 @utility intro-panel-right {
   position: absolute;
   inset-block: 0;
-  left: calc(50% - var(--door-skew));
+  left: calc(50% - var(--intro-skew));
   right: 0;
   background-color: var(--color-face-dark);
-  clip-path: polygon(var(--door-skew) 0, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(var(--intro-skew) 0, 100% 0, 100% 100%, 0 100%);
   animation: intro-open-right var(--dur-intro-open) var(--ease-in-out) var(--dur-intro-progress) both;
 }
 
@@ -1145,65 +1178,133 @@
   }
 }
 
-/* Porte (ancienne section scroll, plus utilisée par la page : remplacée par intro) : deux panneaux (face-mid / face-dark) qui s'écartent au scroll. Sans support de animation-timeline
-   ou en reduced-motion : porte de hauteur nulle, rognée, donc ouverte et sans effet (rien ne bloque ni ne masque).
-   Le contenu est dans le HTML dès le départ. Ne pas poser data-scroll-anim ici (il forcerait transform: none). */
-@keyframes door-open-left {
+/* Porte entre salles : calque décoratif DANS une salle (enfant direct de salle-frame, dernier du DOM de la salle),
+   piloté par la timeline --salle de salle-frame. aria-hidden, pointer-events: none, jamais de focus.
+   <div class="porte" aria-hidden="true" data-porte="first|mid|last">
+     <div class="porte-battant-left"><span class="porte-filet"></span></div>
+     <div class="porte-battant-right"><span class="porte-filet"></span></div></div>
+   data-porte : mid = entrée + sortie ; first = sortie seulement (1re salle) ; last = entrée seulement (dernière salle).
+   Entrée : battants fermés (translateX 0) -> ouverts (±shift) ; sortie : ouverts -> fermés. Un seul élément porte par
+   salle : à la jointure, la sortie de la salle N et l'entrée de la salle N+1 sont toutes deux fermées (diagonale pleine) : la sortie de N est fermée dès exit 35 %,
+   l'entrée de N+1 reste fermée jusqu'à entry 50 % (aucun trou à mi-jointure), puis elle s'ouvre.
+   transform seul (clip-path statique, pas de will-change). Hors support de animation-timeline ou en reduced-motion :
+   display: none (aucun contenu masqué, aucune couche qui bloque). */
+@keyframes porte-in {
+  from {
+    transform: translateX(0);
+  }
   to {
-    transform: translateX(-100%);
+    transform: translateX(calc(var(--porte-dir) * var(--porte-open-shift)));
   }
 }
 
-@keyframes door-open-right {
+@keyframes porte-out {
+  from {
+    transform: translateX(calc(var(--porte-dir) * var(--porte-open-shift)));
+  }
   to {
-    transform: translateX(100%);
+    transform: translateX(0);
   }
 }
 
-@utility door {
-  position: relative;
-  height: 0;
-  overflow: clip;
-  pointer-events: none;
+@utility porte {
+  display: none;
 
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
-      height: var(--door-height);
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: var(--z-porte);
+      overflow: clip;
+      pointer-events: none;
     }
   }
 }
 
-@utility door-panel-left {
+/* Battants : plein cadre, découpés par la diagonale (clip-path statique). Le gauche déborde de --stroke-hairline sous
+   le droit (posé après) : pas de liseré clair à la jonction fermée. Animations : porte-in puis porte-out (fill forwards
+   seul : inactive avant sa plage, donc porte-in garde la main ; first : both, sinon fermée avant la sortie), même timeline --salle. */
+@utility porte-battant-left {
+  --porte-dir: -1;
   position: absolute;
-  inset-block: 0;
-  left: 0;
-  width: 50%;
-  background-color: var(--color-face-mid);
-  clip-path: polygon(0 0, 100% 0, calc(100% - var(--door-skew)) 100%, 0 100%);
+  inset: 0;
+  background-color: var(--color-face-deep);
+  clip-path: polygon(
+    0 0,
+    calc(var(--porte-seam-top) + var(--stroke-hairline)) 0,
+    calc(var(--porte-seam-bottom) + var(--stroke-hairline)) 100%,
+    0 100%
+  );
+  animation-name: porte-in, porte-out;
+  animation-timing-function: var(--ease-porte);
+  animation-fill-mode: both, forwards;
+  animation-timeline: --salle, --salle;
+  animation-range:
+    var(--porte-range-in-start) var(--porte-range-in-end),
+    var(--porte-range-out-start) var(--porte-range-out-end);
 
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      animation: door-open-left var(--ease-in-out) both;
-      animation-timeline: view();
-      animation-range: var(--door-range-start) var(--door-range-end);
-    }
+  [data-porte='first'] > & {
+    animation-name: porte-out;
+    animation-fill-mode: both;
+    animation-timeline: --salle;
+    animation-range: var(--porte-range-out-start) var(--porte-range-out-end);
+  }
+
+  [data-porte='last'] > & {
+    animation-name: porte-in;
+    animation-fill-mode: both;
+    animation-timeline: --salle;
+    animation-range: var(--porte-range-in-start) var(--porte-range-in-end);
   }
 }
 
-@utility door-panel-right {
+@utility porte-battant-right {
+  --porte-dir: 1;
   position: absolute;
-  inset-block: 0;
-  left: calc(50% - var(--door-skew));
-  right: 0;
+  inset: 0;
   background-color: var(--color-face-dark);
-  clip-path: polygon(var(--door-skew) 0, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(var(--porte-seam-top) 0, 100% 0, 100% 100%, var(--porte-seam-bottom) 100%);
+  animation-name: porte-in, porte-out;
+  animation-timing-function: var(--ease-porte);
+  animation-fill-mode: both, forwards;
+  animation-timeline: --salle, --salle;
+  animation-range:
+    var(--porte-range-in-start) var(--porte-range-in-end),
+    var(--porte-range-out-start) var(--porte-range-out-end);
 
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      animation: door-open-right var(--ease-in-out) both;
-      animation-timeline: view();
-      animation-range: var(--door-range-start) var(--door-range-end);
-    }
+  [data-porte='first'] > & {
+    animation-name: porte-out;
+    animation-fill-mode: both;
+    animation-timeline: --salle;
+    animation-range: var(--porte-range-out-start) var(--porte-range-out-end);
+  }
+
+  [data-porte='last'] > & {
+    animation-name: porte-in;
+    animation-fill-mode: both;
+    animation-timeline: --salle;
+    animation-range: var(--porte-range-in-start) var(--porte-range-in-end);
+  }
+}
+
+/* Filet terracotta (city-on-dark), enfant d'un battant : il voyage avec lui. Centré verticalement, de part et d'autre
+   de la jonction (gauche : côté bas de la diagonale ; droit : côté haut). */
+@utility porte-filet {
+  position: absolute;
+  top: 50%;
+  width: var(--porte-filet-width);
+  height: var(--porte-filet-height);
+  background-color: var(--color-city-on-dark);
+  translate: 0 -50%;
+  transform: skewX(var(--porte-filet-skew));
+
+  .porte-battant-left > & {
+    left: calc(var(--porte-seam-bottom) - var(--porte-filet-gap));
+  }
+
+  .porte-battant-right > & {
+    left: calc(var(--porte-seam-top) + var(--porte-filet-gap));
   }
 }
 
@@ -1276,6 +1377,10 @@
     translate: none !important;
     scale: none !important;
     transition: none !important;
+  }
+
+  .porte {
+    display: none !important;
   }
 
   /* Tout effet piloté par le scroll : désactivé, état final affiché (aucun contenu masqué).

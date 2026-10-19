@@ -10,10 +10,10 @@ import SalleScene from '../ui/SalleScene.astro';
 const numero = etapes.find((e) => e.id === 'apropos')?.numero ?? '';
 ---
 
-<Section tone="mid" id="apropos" reveal labelledby="marque-title">
+<Section tone="mid" id="apropos" reveal porte="mid" labelledby="marque-title">
   <SalleScene class="grid grid-cols-1 gap-space-lg desktop:grid-cols-12 desktop:items-center desktop:gap-gutter">
-    <span class="salle-number-outline absolute right-0 top-0 -z-10 font-display text-salle-number" aria-hidden="true">{numero}</span>
-    <div class="flex flex-col gap-space-md desktop:col-span-7">
+    <span class="salle-number-outline order-first justify-self-end font-display text-salle-number desktop:order-none desktop:col-span-5 desktop:col-start-8 desktop:row-start-2 desktop:self-start" aria-hidden="true">{numero}</span>
+    <div class="flex flex-col gap-space-md desktop:col-span-7 desktop:row-span-2 desktop:row-start-1">
       <SalleLabel id="apropos" />
       <h2 id="marque-title" class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">
         <span class="salle-line"><span class="salle-line-inner">{marque.title}</span></span>
@@ -23,7 +23,7 @@ const numero = etapes.find((e) => e.id === 'apropos')?.numero ?? '';
         <Button variant="primary-light" href={marque.link.href} icon="arrow-right">{marque.link.label}</Button>
       </div>
     </div>
-    <dl class="grid grid-cols-1 gap-space-md sm:grid-cols-2 desktop:col-span-5">
+    <dl class="grid grid-cols-1 gap-space-md sm:grid-cols-2 desktop:col-span-5 desktop:col-start-8 desktop:row-start-1">
       {
         marque.facts.map((f) => (
           <div class="para-md reveal-plane flex min-w-0 flex-col-reverse bg-face-deep px-space-lg py-space-lg text-stone even:desktop:mt-space-xl">

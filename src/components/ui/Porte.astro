@@ -1,0 +1,14 @@
+---
+// Porte entre salles : deux battants décoratifs pilotés par la timeline --salle de leur salle (voir global.css).
+// first = sortie seule (1re salle) ; mid = entrée + sortie ; last = entrée seule (dernière salle).
+interface Props {
+  position?: 'first' | 'mid' | 'last';
+}
+
+const { position = 'mid' } = Astro.props;
+---
+
+<div class="porte" aria-hidden="true" data-porte={position}>
+  <div class="porte-battant-left"><span class="porte-filet"></span></div>
+  <div class="porte-battant-right"><span class="porte-filet"></span></div>
+</div>

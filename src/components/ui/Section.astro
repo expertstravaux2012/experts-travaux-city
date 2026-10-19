@@ -1,15 +1,19 @@
 ---
 // Plan de couleur de la page : arête haute en biais, teinte = une face du cube.
+import Porte from './Porte.astro';
+
 interface Props {
   tone?: 'deep' | 'dark' | 'mid' | 'light' | 'surface' | 'city';
   id?: string;
   labelledby?: string;
   /** Le plan arrive au scroll (reveal-plane). */
   reveal?: boolean;
+  /** Salle à porte : battants pilotés par la timeline --salle de la section (mid = entrée + sortie, last = entrée seule). */
+  porte?: 'mid' | 'last';
   class?: string;
 }
 
-const { tone = 'surface', id, labelledby, reveal = false, class: className = '' } = Astro.props;
+const { tone = 'surface', id, labelledby, reveal = false, porte, class: className = '' } = Astro.props;
 
 const tones = {
   deep: 'bg-face-deep text-stone',
@@ -21,8 +25,19 @@ const tones = {
 };
 ---
 
-<section id={id} aria-labelledby={labelledby} class={`plane ${tones[tone]} ${reveal ? 'reveal-plane' : ''}`}>
+<section id={id} aria-labelledby={labelledby} class={`plane ${tones[tone]} ${reveal ? 'reveal-plane' : ''} ${porte ? 'section-porte' : ''}`}>
   <div class={`mx-auto max-w-site px-margin py-space-xl desktop:py-space-2xl ${className}`}>
     <slot />
   </div>
+  {porte && <Porte position={porte} />}
 </section>
+
+<style>
+  @supports (animation-timeline: view()) {
+    .section-porte {
+      isolation: isolate;
+      overflow: clip;
+      view-timeline: --salle block;
+    }
+  }
+</style>
