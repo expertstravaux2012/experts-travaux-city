@@ -1,27 +1,37 @@
 ---
+// Salle 08 : la maison. Fond face-mid (stone seulement : city/city-on-dark y échouent), plaques en face-deep.
 import { marque } from '../../data/home';
+import { etapes } from '../../data/salles';
 import Section from '../ui/Section.astro';
 import Button from '../ui/Button.astro';
+import SalleLabel from '../ui/SalleLabel.astro';
+import SalleScene from '../ui/SalleScene.astro';
+
+const numero = etapes.find((e) => e.id === 'apropos')?.numero ?? '';
 ---
 
-<Section tone="mid" id="apropos" labelledby="marque-title">
-  <div class="grid grid-cols-1 gap-space-lg desktop:grid-cols-12 desktop:items-center desktop:gap-gutter">
+<Section tone="mid" id="apropos" reveal labelledby="marque-title">
+  <SalleScene class="grid grid-cols-1 gap-space-lg desktop:grid-cols-12 desktop:items-center desktop:gap-gutter">
+    <span class="salle-number-outline absolute right-0 top-0 -z-10 font-display text-salle-number" aria-hidden="true">{numero}</span>
     <div class="flex flex-col gap-space-md desktop:col-span-7">
-      <h2 id="marque-title" class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">{marque.title}</h2>
-      {marque.paragraphs.map((p) => <p class="max-w-xl text-body-lg text-stone/90">{p}</p>)}
+      <SalleLabel id="apropos" />
+      <h2 id="marque-title" class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">
+        <span class="salle-line"><span class="salle-line-inner">{marque.title}</span></span>
+      </h2>
+      {marque.paragraphs.map((p) => <p class="max-w-xl text-body-lg text-stone">{p}</p>)}
       <div class="pt-space-sm">
         <Button variant="primary-light" href={marque.link.href} icon="arrow-right">{marque.link.label}</Button>
       </div>
     </div>
-    <dl class="grid grid-cols-2 gap-space-md desktop:col-span-5">
+    <dl class="grid grid-cols-1 gap-space-md sm:grid-cols-2 desktop:col-span-5">
       {
         marque.facts.map((f) => (
-          <div class="para-lg flex flex-col-reverse bg-face-deep px-space-lg py-space-lg [--skew:1.5rem]">
-            <dt class="text-body-sm text-stone/85">{f.label}</dt>
-            <dd class="font-display text-headline-md text-city-on-dark">{f.valeur}</dd>
+          <div class="para-md reveal-plane flex min-w-0 flex-col-reverse bg-face-deep px-space-lg py-space-lg text-stone even:desktop:mt-space-xl">
+            <dt class="text-body-sm">{f.label}</dt>
+            <dd class="min-w-0 break-words font-display text-headline-md text-city-on-dark">{f.valeur}</dd>
           </div>
         ))
       }
     </dl>
-  </div>
+  </SalleScene>
 </Section>

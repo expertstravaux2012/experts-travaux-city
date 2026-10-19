@@ -13,6 +13,10 @@ export const etapes: Etape[] = [
   { numero: '04', titre: 'Chantier & livraison', description: 'Un chantier piloté par le même interlocuteur, jusqu’à la réception avec vous.' },
 ];
 
+export const cubeIllustration = {
+  label: 'Illustration d’un cube qui se construit, une face après l’autre, au fil des quatre étapes de la méthode.',
+} as const;
+
 export interface Garantie {
   titre: string;
   description: string;
@@ -23,3 +27,6 @@ export const garanties: Garantie[] = [
   { titre: 'Assureur unique du chantier', description: 'Un seul assureur pour l’ensemble des corps de métier.' },
   { titre: 'Devis détaillé', description: 'Un chiffrage clair, validé avant tout démarrage.' },
 ];
+
+/** Fragment du H2 `methodeSection.title` mis en accent (doit en être une sous-chaîne exacte). */
+export const methodeAccent = 'remise des clés';

@@ -1,13 +1,15 @@
 ---
 // Plan de couleur de la page : arête haute en biais, teinte = une face du cube.
 interface Props {
-  tone?: 'deep' | 'dark' | 'mid' | 'light' | 'surface';
+  tone?: 'deep' | 'dark' | 'mid' | 'light' | 'surface' | 'city';
   id?: string;
   labelledby?: string;
+  /** Le plan arrive au scroll (reveal-plane). */
+  reveal?: boolean;
   class?: string;
 }
 
-const { tone = 'surface', id, labelledby, class: className = '' } = Astro.props;
+const { tone = 'surface', id, labelledby, reveal = false, class: className = '' } = Astro.props;
 
 const tones = {
   deep: 'bg-face-deep text-stone',
@@ -15,10 +17,11 @@ const tones = {
   mid: 'bg-face-mid text-stone',
   light: 'bg-face-light text-on-surface tone-light',
   surface: 'bg-surface text-on-surface tone-light',
+  city: 'bg-city-strong text-on-accent',
 };
 ---
 
-<section id={id} aria-labelledby={labelledby} class={`plane ${tones[tone]}`}>
+<section id={id} aria-labelledby={labelledby} class={`plane ${tones[tone]} ${reveal ? 'reveal-plane' : ''}`}>
   <div class={`mx-auto max-w-site px-margin py-space-xl desktop:py-space-2xl ${className}`}>
     <slot />
   </div>

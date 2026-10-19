@@ -1,0 +1,63 @@
+---
+// Curseur d'accompagnement : le curseur natif reste visible. Inerte au toucher et en reduced-motion (CSS + script).
+// Étiquette : data-cursor="entrer | suivant | plan" sur l'élément survolé, ou « Entrer » sur un lien d'ancre.
+import { visite } from '../../data/salles';
+
+const { curseur } = visite;
+---
+
+<div class="cursor-follower" aria-hidden="true" data-cursor-follower data-label-entrer={curseur.entrer} data-label-suivant={curseur.suivant} data-label-plan={curseur.plan}>
+  <div class="cursor-ring"></div>
+  <span class="cursor-label"></span>
+</div>
+
+<script>
+  const follower = document.querySelector<HTMLElement>('[data-cursor-follower]');
+  const fine = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+
+  if (follower && fine.matches) {
+    const label = follower.querySelector<HTMLElement>('.cursor-label')!;
+    const EASE = 0.2;
+    let tx = 0;
+    let ty = 0;
+    let x = 0;
+    let y = 0;
+    let frame = 0;
+
+    const tick = () => {
+      x += (tx - x) * EASE;
+      y += (ty - y) * EASE;
+      follower.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      frame = Math.abs(tx - x) + Math.abs(ty - y) > 0.1 ? requestAnimationFrame(tick) : 0;
+    };
+
+    const textFor = (el: Element) => {
+      const key = el.getAttribute('data-cursor') ?? (el.getAttribute('href')?.includes('#') ? 'entrer' : '');
+      return follower.getAttribute(`data-label-${key}`) ?? '';
+    };
+
+    addEventListener(
+      'pointermove',
+      (e) => {
+        if (!follower.hasAttribute('data-ready')) {
+          x = tx = e.clientX;
+          y = ty = e.clientY;
+          follower.setAttribute('data-ready', '');
+        }
+        tx = e.clientX;
+        ty = e.clientY;
+        if (!frame) frame = requestAnimationFrame(tick);
+        const target = (e.target as Element).closest('a[href], button, [data-cursor]');
+        if (target) {
+          follower.dataset.state = 'link';
+          label.textContent = textFor(target);
+        } else {
+          delete follower.dataset.state;
+          label.textContent = '';
+        }
+      },
+      { passive: true },
+    );
+    document.documentElement.addEventListener('pointerleave', () => follower.removeAttribute('data-ready'));
+  }
+</script>

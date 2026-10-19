@@ -1,0 +1,89 @@
+---
+// Cube isométrique à quatre faces (trois faces du logo + sceau terracotta). Les animations sont pilotées en CSS :
+// 'build' = construction au scroll (Parcours), 'close' = fermeture à l'apparition (confirmation), 'none' = fixe.
+interface Props {
+  label: string;
+  animation?: 'build' | 'close' | 'none';
+  class?: string;
+}
+
+const { label, animation = 'none', class: className = '' } = Astro.props;
+
+// --dx / --dy : sens d'arrivée de la face (multiplicateur de --plane-shift) pour l'animation 'close'.
+const faces = [
+  { points: '22,65 100,110 100,200 22,155', fill: 'fill-face-deep', dx: -1, dy: 0 },
+  { points: '100,110 178,65 178,155 100,200', fill: 'fill-face-dark', dx: 1, dy: 0 },
+  { points: '100,20 178,65 100,110 22,65', fill: 'fill-face-mid', dx: 0, dy: -1 },
+  { points: '100,42.5 139,65 100,87.5 61,65', fill: 'fill-city', dx: 0, dy: -1 },
+];
+---
+
+<svg
+  viewBox="0 0 200 220"
+  role="img"
+  aria-label={label}
+  class={className}
+  data-cube={animation}
+  data-scroll-anim={animation === 'none' ? undefined : ''}
+>
+  {
+    faces.map((f, i) => (
+      <polygon
+        points={f.points}
+        class={`cube-face ${f.fill} stroke-hairline-inverse`}
+        stroke-width="2"
+        stroke-linejoin="round"
+        style={`--i:${i};--dx:${f.dx};--dy:${f.dy}`}
+      />
+    ))
+  }
+</svg>
+
+<style>
+  @keyframes cube-build-0 {
+    0% { opacity: 0; transform: translateY(var(--plane-shift)); }
+    25%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes cube-build-1 {
+    0%, 25% { opacity: 0; transform: translateY(var(--plane-shift)); }
+    50%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes cube-build-2 {
+    0%, 50% { opacity: 0; transform: translateY(var(--plane-shift)); }
+    75%, 100% { opacity: 1; transform: none; }
+  }
+  @keyframes cube-build-3 {
+    0%, 75% { opacity: 0; transform: translateY(var(--plane-shift)); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes cube-close {
+    from {
+      opacity: 0;
+      transform: translate(calc(var(--dx) * var(--plane-shift)), calc(var(--dy) * var(--plane-shift)));
+    }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* Sans support d'animation-timeline : aucune règle, le cube est complet. */
+  @supports (animation-timeline: view()) {
+    [data-cube='build'] {
+      view-timeline-name: --cube;
+    }
+    [data-cube='build'] .cube-face {
+      animation-duration: 1ms; /* requis par certains moteurs ; la durée réelle vient de la timeline */
+      animation-timing-function: var(--ease-out-expo);
+      animation-fill-mode: both;
+      animation-timeline: --cube;
+      animation-range: var(--cube-range-start) var(--cube-range-end);
+    }
+    [data-cube='build'] .cube-face:nth-child(1) { animation-name: cube-build-0; }
+    [data-cube='build'] .cube-face:nth-child(2) { animation-name: cube-build-1; }
+    [data-cube='build'] .cube-face:nth-child(3) { animation-name: cube-build-2; }
+    [data-cube='build'] .cube-face:nth-child(4) { animation-name: cube-build-3; }
+  }
+
+  [data-cube='close'] .cube-face {
+    animation: cube-close var(--dur-slow) var(--ease-out-expo) both;
+    animation-delay: calc(var(--i) * var(--dur-fast));
+  }
+</style>

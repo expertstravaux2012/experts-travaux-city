@@ -18,26 +18,38 @@ Enrichie de la charte Experts Travaux (cube, Hanken Grotesk, contrastes AA) :
 - **Terracotta** : `city` #C4603C (graphismes, grands textes), `city-strong` #A34A28 (aplats avec texte blanc, texte sur fond clair), `city-on-dark` #E8946F (texte sur fond sombre).
 - **Typo** : Montserrat Light (`font-display`, titres ; `font-city` pour « City »), Hanken Grotesk (texte), Anton (nom de marque dans le logo). Ni Newsreader, ni monospace, ni capitales d'étiquette.
 - **Boutons** : `accent`, `primary-light`, `primary`, `secondary(-light)`.
+- **Écarts validés par Hery** (exceptions explicites à « pas d'ombre » et « tout en parallélogrammes ») :
+  - `shadow-floating` (hairline + ombre portée douce) : seule ombre autorisée, élévation de la carte du formulaire (RdvSection).
+  - Carte du formulaire **rectangulaire** (ni `para` ni `para-lg`) : le `clip-path` couperait l'ombre.
+  - `RdvSection` : fond `city-strong` en plein plan (texte `on-accent`, 5,6:1).
+- **Salles** (séquence de 6, validée) : gabarit `salle-frame` + `salle-dark` (face-dark / stone) ou `salle-light` (face-light / on-surface), alternés et combinés à `plane`. Numéro géant `text-salle-number` + `salle-number-outline` (décoratif, `aria-hidden`). Rail `rail-bar` / `rail-link` (état actif via `aria-current`, `city-on-dark` sur fond `face-deep` propre au rail), plan en superposition `plan-overlay`, porte `door` / `door-panel-left` / `door-panel-right` (ouverture au scroll, `animation-timeline: view()` ; sans support ou en reduced-motion : porte absente, contenu intact). Tokens `--door-*`, `--salle-*`, `--rail-*`, `--plan-*`, `--z-rail`, `--z-plan` dans `global.css`.
+- **Maquette, option A (scroll natif, écarts validés par Hery)** :
+  - Salle `salle-frame` : **photo plein cadre** (`salle-photo`) + **voile** (`salle-scrim` décoratif, face-deep 35 % : aucun texte directement sur la photo) + **panneau en biais** `salle-panel` (face-deep 88 % en `salle-dark`, face-light 92 % en `salle-light`, alternance conservée ; côté via `data-side`). Texte courant toujours dans le panneau (stone 11,3:1 / on-surface 10,1:1) ; accent `salle-accent` = city-on-dark (sombre) ou city-strong (clair, titre seulement).
+  - **Numéro en contour** `salle-number-outline` (stone 50 %, `aria-hidden`, décoratif, exempté de contraste) à la place du numéro plein pour les salles.
+  - **Curseur d'accompagnement** (`cursor-follower`, anneau en parallélogramme, pas de cercle) : le curseur natif reste visible ; absent au toucher et en reduced-motion.
+  - **Pas de `backdrop-filter`** : les panneaux ne sont pas floutés, le contraste ne dépend que du voile. Variante compacte `salle-panel-compact` (< md : hauteur plafonnée en svh, voile 86 % / 90 %, photo visible). Bouton **Plan** dans le header (`plan-trigger` + `para`, cible 44 px), plus de bouton fixe en bas à gauche.
+  - Parallaxe souris (`--mx`/`--my`, `--parallax-*`) et calque de lumière (`salle-light-layer`, transform d'un calque pré-rendu) : même garde, états finaux sans animation sinon. Rail horizontal en bas `rail-bar` (>= md, `--spacing-rail`), plan `plan-grid` / `plan-cell` (10 cases), intro porte `intro*` (CSS pur, 1,4 s, `--dur-intro-*`). `door*` reste défini mais n'est plus utilisé par la page.
+- **Contrastes à respecter** : `city` en graphisme/grand texte seulement, jamais sur `face-light` (2,9:1) ; sur `face-light`, `city-strong` (4,1:1) reste réservé aux grands textes et graphismes ; texte courant sur `face-light` = `on-surface`. `face-mid` n'est pas une couleur de texte ni de trait sur fond sombre (2,8:1 sur face-deep).
 
 ## Architecture (validée)
 
 ```
 src/
   styles/global.css      tokens, @utility plane / para / para-lg
-  data/                  site, navigation, home, showroom, rdv, methode, seo, pages, legal, cookies, realisations
+  data/                  site, navigation, home, showroom, rdv, methode, seo, pages, legal, cookies, realisations, salles
   lib/                   helix/tour.ts (hero 3D), jsonld, url, consent, faq-jsonld
   components/
-    ui/                  Button, Section, SectionHeading, Breadcrumb, Icon, Logo
-    layout/              Header, MobileMenu, Footer, Marquee, Preloader, CookieConsent, LegalPage
-    sections/            Hero, Statement, Parcours, Marque, RdvSection
+    ui/                  Button, Section, Breadcrumb, Icon, Logo, Cube, Salle, SalleLabel, SalleScene, Pastille
+    layout/              Header, MobileMenu, Footer, Marquee, Preloader, CookieConsent, LegalPage, PorteIntro, CurseurSuivi, RailSalles, PlanSalles
+    sections/            Hero (hélice, derrière showHelix), Entree, Salles, Parcours, Marque, RdvSection
     sections/page/       PageIntro (pages légales)
   layouts/Layout.astro   head, polices, SEO, JSON-LD
   pages/                 index, mentions-legales, cgu, robots.txt.ts
 ```
 
-Une seule page de contenu. Navigation par ancres : `/#methode` (Parcours), `/#apropos` (Marque), `/#rendez-vous` (RdvSection), `#showroom` (Statement). Pages supprimées (validé) : `/showroom/`, `/prendre-rendez-vous/`, section « Matières ».
+Une seule page de contenu. Navigation par ancres : `/#methode` (Parcours), `/#apropos` (Marque), `/#rendez-vous` (RdvSection), `#showroom` (Entrée). Pages supprimées (validé) : `/showroom/`, `/prendre-rendez-vous/`, section « Matières ».
 
-Ordre de la page : Hero (hélice) → Statement (intro géante, mots qui s'allument au scroll) → Parcours → Marque → RdvSection → Footer. Habillage : Preloader (cube qui se dessine, une fois par session), Marquee (bandeau terracotta fixe `h-9`, header à `top-9`).
+Ordre de la page : PorteIntro (intro CSS, une fois par session) → Entrée (salle 00, porte le H1 ; remplacée par Hero/hélice si `showHelix`) → Salles 01–06 (`sections/Salles`, `ui/Salle` = cadre, données `data/salles.ts`) → Parcours → Marque → RdvSection → Footer, avec Rail horizontal (progression), Plan des salles et CurseurSuivi montés en fin de page. Habillage : Marquee (bandeau terracotta fixe `h-9`, header à `top-9`). Preloader (cube) : voir Layout.
 
 ## Hero en hélice
 
@@ -53,7 +65,7 @@ Inspiré de la section « Uma nova perspectiva » d'azimuteresidencial.com.br (i
 
 ## À renseigner avant mise en ligne
 
-`src/data/site.ts` : `url` (domaine, provisoire `city.experts-travaux.fr`), `address`, `horaires`, `phone`/`email` du showroom (repris du site principal en attendant), `indexable: true` (interrupteur unique : `false` = noindex + `Disallow: /`). `src/data/legal.ts` : éditeur, hébergeur. Webhook n8n. Textes de `home.ts`/`showroom.ts` : provisoires, à valider. Photos réelles du showroom.
+`src/data/site.ts` : `url` (domaine, provisoire `city.experts-travaux.fr`), `address`, `horaires`, `phone`/`email` du showroom (repris du site principal en attendant), `indexable: true` (interrupteur unique : `false` = noindex + `Disallow: /`), `showHelix` (interrupteur unique, `false` par défaut : Entrée en salle 00 ; `true` = hélice 3D à la place de l'Entrée, `tour.ts` n'est chargé que dans ce cas). `src/data/legal.ts` : éditeur, hébergeur. Webhook n8n. Textes de `home.ts`/`showroom.ts` : provisoires, à valider. Photos réelles du showroom.
 
 ## Agents (`.claude/agents/`)
 

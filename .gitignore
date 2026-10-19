@@ -23,3 +23,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
+
+# fichier de maquette
+Showroom Experts Travaux City.html

@@ -11,4 +11,5 @@ const links: NavLink[] = [
 export const navigation = {
   links,
   cta: { label: 'Prendre rendez-vous', href: '/#rendez-vous' },
+  marqueeMessage: 'Visitez le showroom, venez avec votre projet',
 } as const;

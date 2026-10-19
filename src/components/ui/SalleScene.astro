@@ -1,0 +1,22 @@
+---
+// Scène d'une salle sans photo (Parcours, Marque, Rendez-vous) : porte la timeline --salle des entrées
+// (numéro en contour, lignes du titre, panneau). `isolate` garde le numéro (-z-10) au-dessus du fond du parent.
+// Sans support d'animation-timeline : aucune règle, état final.
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class={`salle-scene relative isolate ${className}`}>
+  <slot />
+</div>
+
+<style>
+  @supports (animation-timeline: view()) {
+    .salle-scene {
+      view-timeline: --salle block;
+    }
+  }
+</style>

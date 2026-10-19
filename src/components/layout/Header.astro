@@ -5,6 +5,7 @@ import { signature } from '../../data/home';
 import Button from '../ui/Button.astro';
 import Logo from '../ui/Logo.astro';
 import MobileMenu from './MobileMenu.astro';
+import PlanSalles from './PlanSalles.astro';
 
 const normalize = (path: string) => (path.endsWith('/') ? path : `${path}/`);
 const currentPath = normalize(Astro.url.pathname);
@@ -34,7 +35,10 @@ const { labels } = site;
       <Button variant="primary-light" href={navigation.cta.href}>{navigation.cta.label}</Button>
     </nav>
 
-    <MobileMenu part="button" ariaCurrent={ariaCurrent} />
+    <div class="flex items-center gap-space-sm">
+      <PlanSalles part="button" />
+      <MobileMenu part="button" ariaCurrent={ariaCurrent} />
+    </div>
   </div>
 </header>
 

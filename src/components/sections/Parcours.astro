@@ -1,23 +1,53 @@
 ---
-// Parcours client : une vraie séquence (4 étapes), donc numérotée. Les marches montent vers la droite.
+// Salle 07 : la méthode. Le cube se construit au scroll, une face par étape (la 4e, terracotta, = dernière carte).
 import { methodeSection } from '../../data/home';
-import { etapes, garanties } from '../../data/methode';
+import { etapes, garanties, cubeIllustration, methodeAccent } from '../../data/methode';
+import { etapes as salles } from '../../data/salles';
 import Section from '../ui/Section.astro';
-import SectionHeading from '../ui/SectionHeading.astro';
+import Cube from '../ui/Cube.astro';
+import SalleLabel from '../ui/SalleLabel.astro';
+import SalleScene from '../ui/SalleScene.astro';
+
+const numero = salles.find((e) => e.id === 'methode')?.numero ?? '';
+const { title } = methodeSection;
+const at = title.indexOf(methodeAccent);
+const lines = at < 0 ? [{ text: title, accent: false }] : [
+  { text: title.slice(0, at).trim(), accent: false },
+  { text: methodeAccent, accent: true },
+];
+const last = etapes.length - 1;
 ---
 
-<Section tone="deep" id="methode" labelledby="methode-title">
-  <SectionHeading id="methode-title" title={methodeSection.title} class="mb-space-xl" />
+<Section tone="deep" id="methode" reveal labelledby="methode-title">
+  <SalleScene class="mb-space-xl flex flex-col gap-space-lg md:flex-row md:items-center md:justify-between">
+    <span class="salle-number-outline absolute right-0 top-0 -z-10 font-display text-salle-number" aria-hidden="true">{numero}</span>
+    <div class="salle-panel flex-1 [--panel-bg:var(--color-face-dark)] [--panel-fg:var(--color-stone)] [--panel-accent:var(--color-city-on-dark)]">
+      <SalleLabel id="methode" class="mb-space-md text-city-on-dark" />
+      <h2 id="methode-title" class="text-balance font-display text-headline-lg-mobile md:text-headline-lg">
+        {
+          lines.map((l, i) => (
+            <span class="salle-line">
+              <span class:list={['salle-line-inner', l.accent && 'salle-accent']} style={`--line:${i}`}>{l.text}</span>
+            </span>
+          ))
+        }
+      </h2>
+    </div>
+    <Cube label={cubeIllustration.label} animation="build" class="h-auto cube-size shrink-0" />
+  </SalleScene>
   <ol class="grid grid-cols-1 gap-space-md desktop:grid-cols-4 desktop:items-end desktop:gap-space-md">
     {
       etapes.map((etape, i) => (
         <li
-          class="para-lg flex flex-col gap-space-sm bg-face-dark px-space-xl py-space-lg [--skew:1.5rem] desktop:min-h-[var(--h)]"
-          style={`--h:${15 + i * 3}rem`}
+          class:list={[
+            'para-md reveal-plane flex flex-col gap-space-sm px-space-xl py-space-lg stair',
+            i === last ? 'bg-city-strong text-on-accent' : 'bg-face-dark text-stone',
+          ]}
+          style={`--i:${i}`}
         >
-          <span class="font-display text-headline-lg text-city-on-dark">{etape.numero}</span>
+          <span class:list={['font-display text-headline-lg', i !== last && 'text-city-on-dark']}>{etape.numero}</span>
           <h3 class="font-display text-headline-sm">{etape.titre}</h3>
-          <p class="text-body-md text-stone/85">{etape.description}</p>
+          <p class="text-body-md">{etape.description}</p>
         </li>
       ))
     }
@@ -26,7 +56,7 @@ import SectionHeading from '../ui/SectionHeading.astro';
     {
       garanties.map((g) => (
         <li class="flex items-start gap-3">
-          <span class="para mt-1.5 block h-3 w-5 shrink-0 bg-city [--skew:0.35rem]" aria-hidden="true"></span>
+          <span class="marker mt-1.5" aria-hidden="true"></span>
           <div>
             <h3 class="text-title-md font-semibold">{g.titre}</h3>
             <p class="text-body-sm text-stone/80">{g.description}</p>

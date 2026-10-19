@@ -15,6 +15,16 @@ export const site = {
    */
   indexable: false,
   /**
+   * Préloader « cube qui se dessine » (une fois par session, ~3 s). false = non émis (code conservé dans
+   * Preloader.astro ; l'intro porte le remplace) ; true = affiché.
+   */
+  showPreloader: false,
+  /**
+   * Interrupteur unique du hero. false = Entrée (salle 00, photo + panneau, porte le H1) ; true = hélice 3D
+   * (Hero, Three.js chargé à la demande) à la place de l'Entrée. Un seul H1 dans les deux cas.
+   */
+  showHelix: false,
+  /**
    * Gestionnaire de cookies. enabled = true : le bandeau s'affiche à la première visite.
    * Le bouton « Gérer mes cookies » du footer reste actif.
    */
