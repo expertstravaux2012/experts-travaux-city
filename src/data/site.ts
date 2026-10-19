@@ -39,7 +39,6 @@ export const site = {
   foundedYear: 2013,
   labels: {
     skipToContent: 'Aller au contenu',
-    homeAria: 'Experts Travaux City — accueil',
     mainNav: 'Navigation principale',
     mobileNav: 'Navigation principale mobile',
     menu: 'Menu',

@@ -11,6 +11,7 @@ import city300 from '@fontsource/montserrat/files/montserrat-latin-300-normal.wo
 import anton400 from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
 import '../styles/global.css';
 import { site } from '../data/site';
+import { preloaderImage } from '../data/realisations';
 import CookieConsent from '../components/layout/CookieConsent.astro';
 import { absoluteUrl } from '../lib/url';
 import {
@@ -52,6 +53,19 @@ const graph = jsonLd === false ? null : buildGraph([organizationNode(), ...jsonL
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <script is:inline define:vars={{ preSrc: preloaderImage }}>
+      try {
+        var r = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!r && !sessionStorage.getItem('city-pre') && location.pathname === '/') {
+          document.documentElement.classList.add('preload');
+          sessionStorage.setItem('city-pre', '1');
+          var l = document.createElement('link');
+          l.rel = 'preload'; l.as = 'image'; l.href = preSrc; l.type = 'image/webp'; l.fetchPriority = 'high';
+          document.head.appendChild(l);
+          setTimeout(function () { document.documentElement.classList.remove('preload'); }, 3600);
+        }
+      } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="robots" content={robots} />

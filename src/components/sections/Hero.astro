@@ -2,7 +2,7 @@
 // Entrée : les photos s'enroulent en colimaçon ; en défilant, la caméra descend la spirale (Three.js, chargé à la demande).
 // Sans WebGL, avec mouvement réduit ou économie de données : photo plein cadre + vignettes (repli statique).
 import { hero } from '../../data/home';
-import { realisations } from '../../data/realisations';
+import { imageSrcset, realisations } from '../../data/realisations';
 import Button from '../ui/Button.astro';
 ---
 
@@ -12,7 +12,7 @@ import Button from '../ui/Button.astro';
     <div class="hero-static absolute inset-0 z-hero-backdrop" aria-hidden="true">
       {
         realisations.map((r, i) => (
-          <img src={r.image} alt="" width={r.width} height={r.height} sizes="100vw" loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : 'auto'} decoding="async" class="hero-bg absolute inset-0 h-full w-full object-cover" data-active={i === 0 ? 'true' : 'false'} />
+          <img src={r.image} srcset={imageSrcset(r.image)} alt="" width={r.width} height={r.height} sizes="100vw" loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : 'auto'} decoding="async" class="hero-bg absolute inset-0 h-full w-full object-cover" data-active={i === 0 ? 'true' : 'false'} />
         ))
       }
     </div>
@@ -43,7 +43,7 @@ import Button from '../ui/Button.astro';
             <li class="w-44 shrink-0 snap-start desktop:w-auto">
               <button type="button" class="hero-thumb group block w-full border-t-2 border-stone/30 bg-face-deep/55 text-left backdrop-blur-sm transition-colors aria-pressed:border-city-on-dark" data-i={i} aria-pressed={i === 0 ? 'true' : 'false'}>
                 <span class="block aspect-video overflow-hidden">
-                  <img src={r.image} alt="" width="480" height="270" loading="lazy" decoding="async" class="h-full w-full object-cover opacity-80 transition duration-500 group-hover:opacity-100 group-aria-pressed:opacity-100" />
+                  <img src={r.image} srcset={imageSrcset(r.image, [480, 800])} sizes="(min-width: 1200px) 16vw, 176px" alt="" width="480" height="270" loading="lazy" decoding="async" class="h-full w-full object-cover opacity-80 transition duration-500 group-hover:opacity-100 group-aria-pressed:opacity-100" />
                 </span>
                 <span class="block px-space-sm py-space-sm text-body-sm font-medium text-stone/80 group-aria-pressed:text-stone">{r.categorie}</span>
               </button>
@@ -80,8 +80,13 @@ import Button from '../ui/Button.astro';
       press(i);
     };
     let jump: ((i: number) => void) | null = null;
+    let pending: number | null = null;
     btns.forEach((b, i) => {
-      b.addEventListener('click', () => (jump ? jump(i) : showBg(i)));
+      b.addEventListener('click', () => {
+        if (jump) return jump(i);
+        pending = i;
+        showBg(i);
+      });
       b.addEventListener('mouseenter', () => !jump && matchMedia('(hover:hover)').matches && showBg(i));
       b.addEventListener('focus', () => !jump && showBg(i));
     });
@@ -100,24 +105,51 @@ import Button from '../ui/Button.astro';
       const stage = root.querySelector<HTMLElement>('[data-stage]')!;
       const canvas = root.querySelector<HTMLCanvasElement>('[data-canvas]')!;
       const images = realisations();
-      import('../../lib/helix/tour').then(({ startHelix }) => {
+      const activate3d = () => {
+        const y = scrollY;
+        const before = root.offsetHeight;
         root.classList.add('is-3d');
-        const h = startHelix({
-          canvas,
-          stage,
-          track: root,
-          images,
-          onIndex: press,
-          onIntro: (e) => {
-            root.style.setProperty('--e', e.toFixed(3));
-            if (copy) (copy as HTMLElement & { inert: boolean }).inert = e > 0.95;
-          },
-        });
-        jump = h.jumpTo;
-      }).catch(() => root.classList.remove('is-3d'));
+        if (y === 0) return;
+        const delta = root.offsetHeight - before;
+        if (y >= before) scrollTo({ top: y + delta, behavior: 'instant' });
+      };
+      const boot = () =>
+        import('../../lib/helix/tour').then(({ startHelix }) => {
+          activate3d();
+          const h = startHelix({
+            canvas,
+            stage,
+            track: root,
+            images,
+            onIndex: press,
+            onIntro: (e) => {
+              root.style.setProperty('--e', e.toFixed(3));
+              if (copy) (copy as HTMLElement & { inert: boolean }).inert = e > 0.95;
+            },
+          });
+          jump = h.jumpTo;
+          if (pending !== null) jump(pending);
+        }).catch(() => root.classList.remove('is-3d'));
+      let started = false;
+      const go = () => {
+        if (started) return;
+        started = true;
+        events.forEach((t) => removeEventListener(t, go));
+        clearTimeout(timer);
+        const idle = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+        idle ? idle(boot, { timeout: 1500 }) : setTimeout(boot, 200);
+      };
+      const events = ['pointerdown', 'keydown', 'touchstart'];
+      const preloading = document.documentElement.classList.contains('preload');
+      let timer = 0;
+      const arm = () => {
+        events.forEach((t) => addEventListener(t, go, { once: true, passive: true }));
+        timer = window.setTimeout(go, preloading ? Math.max(0, 3600 - performance.now()) : 0);
+      };
+      document.readyState === 'complete' ? arm() : addEventListener('load', arm, { once: true });
     }
   }
   function realisations() {
-    return [...document.querySelectorAll<HTMLImageElement>('.hero-bg')].map((i) => i.currentSrc || i.src);
+    return [...document.querySelectorAll<HTMLImageElement>('.hero-bg')].map((i) => i.src);
   }
 </script>

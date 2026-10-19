@@ -1,6 +1,26 @@
 // Hélice : les photos du hero sont posées en colimaçon (un escalier de cadres) ; en défilant,
 // la caméra descend en spirale et s'arrête sur chaque image. Aucune dépendance autre que Three.js.
-import * as THREE from 'three';
+import {
+  ACESFilmicToneMapping,
+  BoxGeometry,
+  CatmullRomCurve3,
+  Color,
+  Fog,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  PMREMGenerator,
+  PerspectiveCamera,
+  PlaneGeometry,
+  SRGBColorSpace,
+  Scene,
+  Texture,
+  TextureLoader,
+  TubeGeometry,
+  Vector3,
+  WebGLRenderer,
+} from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 export interface HelixConfig {
@@ -30,65 +50,81 @@ const smooth = (a: number, b: number, x: number) => {
 export function startHelix(cfg: HelixConfig) {
   const { canvas, stage, track, images } = cfg;
   const N = images.length;
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+  renderer.outputColorSpace = SRGBColorSpace;
+  renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.setClearColor(0x000000, 0);
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 140);
-  const pmrem = new THREE.PMREMGenerator(renderer);
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(FOV, 1, 0.1, 140);
+  const pmrem = new PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environment = envTex;
   scene.environmentIntensity = 0.7;
-  const fog = new THREE.Fog(0x1c1b1b, 12, 40);
+  const fog = new Fog(0x1c1b1b, 12, 40);
   scene.fog = fog;
 
-  const group = new THREE.Group();
+  const group = new Group();
   scene.add(group);
 
   // Ruban central : la colonne vertébrale terracotta de la spirale.
-  const pts: THREE.Vector3[] = [];
+  const pts: Vector3[] = [];
   for (let a = -0.9; a <= (N - 1) * STEP + 1; a += 0.04) {
-    pts.push(new THREE.Vector3(Math.sin(a) * 2.3, -(a / STEP) * PITCH, Math.cos(a) * 2.3));
+    pts.push(new Vector3(Math.sin(a) * 2.3, -(a / STEP) * PITCH, Math.cos(a) * 2.3));
   }
-  const ribbon = new THREE.Mesh(
-    new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 3, 0.16, 10, false),
-    new THREE.MeshStandardMaterial({ color: 0xc4603c, metalness: 0.85, roughness: 0.3 }),
+  const ribbon = new Mesh(
+    new TubeGeometry(new CatmullRomCurve3(pts), pts.length * 3, 0.16, 10, false),
+    new MeshStandardMaterial({ color: 0xc4603c, metalness: 0.85, roughness: 0.3 }),
   );
   group.add(ribbon);
 
   // Cadres photo.
-  const frameGeo = new THREE.BoxGeometry(W + 0.2, H + 0.2, 0.16);
-  const photoGeo = new THREE.PlaneGeometry(W, H);
-  const loader = new THREE.TextureLoader();
-  const frames: THREE.MeshStandardMaterial[] = [];
-  const textures: THREE.Texture[] = [];
-  const photoMats: THREE.MeshBasicMaterial[] = [];
+  const frameGeo = new BoxGeometry(W + 0.2, H + 0.2, 0.16);
+  const photoGeo = new PlaneGeometry(W, H);
+  const loader = new TextureLoader();
+  const frames: MeshStandardMaterial[] = [];
+  const textures: Texture[] = [];
+  const slots: ((done: () => void) => void)[] = [];
+  let disposed = false;
+  const photoMats: MeshBasicMaterial[] = [];
   images.forEach((src, i) => {
     const a = i * STEP;
-    const card = new THREE.Group();
+    const card = new Group();
     card.position.set(Math.sin(a) * R, -i * PITCH, Math.cos(a) * R);
     card.rotation.y = a;
-    const fm = new THREE.MeshStandardMaterial({ color: 0xd9d6d1, metalness: 0.7, roughness: 0.32, emissive: new THREE.Color(0xe8946f), emissiveIntensity: 0 });
+    const fm = new MeshStandardMaterial({ color: 0xd9d6d1, metalness: 0.7, roughness: 0.32, emissive: new Color(0xe8946f), emissiveIntensity: 0 });
     frames.push(fm);
-    card.add(new THREE.Mesh(frameGeo, fm));
-    const pm = new THREE.MeshBasicMaterial({ color: 0x2e2e2e, toneMapped: false });
+    card.add(new Mesh(frameGeo, fm));
+    const pm = new MeshBasicMaterial({ color: 0x2e2e2e, toneMapped: false });
     photoMats.push(pm);
-    const photo = new THREE.Mesh(photoGeo, pm);
+    const photo = new Mesh(photoGeo, pm);
     photo.position.z = 0.085;
     card.add(photo);
     group.add(card);
-    loader.load(src, (t) => {
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-      pm.map = t;
-      pm.color.set(0xffffff);
-      pm.needsUpdate = true;
-      textures.push(t);
+    slots.push((done) => {
+      loader.load(
+        src,
+        (t) => {
+          if (disposed) return t.dispose();
+          t.colorSpace = SRGBColorSpace;
+          t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+          pm.map = t;
+          pm.color.set(0xffffff);
+          pm.needsUpdate = true;
+          textures.push(t);
+          done();
+        },
+        undefined,
+        done,
+      );
     });
   });
+  // Échelonné : la 1re image d'abord, les autres une à une ensuite.
+  const loadFrom = (k: number) => {
+    if (!disposed && k < slots.length) slots[k](() => loadFrom(k + 1));
+  };
+  loadFrom(0);
 
   let width = 1;
   let height = 1;
@@ -121,10 +157,10 @@ export function startHelix(cfg: HelixConfig) {
     return Math.min(N - 1, fl + smooth(HOLD, 1, fr));
   };
 
-  const up = new THREE.Vector3(0, 1, 0);
-  const pos = new THREE.Vector3();
-  const tgt = new THREE.Vector3();
-  const right = new THREE.Vector3();
+  const up = new Vector3(0, 1, 0);
+  const pos = new Vector3();
+  const tgt = new Vector3();
+  const right = new Vector3();
   let cur = 0;
   let curP = 0;
   let lastIdx = -1;
@@ -199,6 +235,7 @@ export function startHelix(cfg: HelixConfig) {
       scrollTo({ top: top + range * Math.min(0.99, p), behavior: 'smooth' });
     },
     dispose() {
+      disposed = true;
       cancelAnimationFrame(raf);
       io.disconnect();
       ro.disconnect();

@@ -68,3 +68,10 @@ export const realisations: Realisation[] = [
       'Une teinte se juge dans la lumière de votre pièce. Lors du rendez-vous, vous définissez l’ambiance recherchée et composez votre palette, du nuancier peinture aux accords avec sols, carreaux et luminaires.',
   },
 ];
+
+/** Photo du préloader (aussi préchargée dans le head) : une seule source pour les deux. */
+export const preloaderImage = realisations[1].image;
+
+/** srcset des variantes `-480`, `-800`, `-1600` (le `image` en -1600 reste le repli et la source des textures WebGL). */
+export const imageSrcset = (image: string, widths: number[] = [480, 800, 1600]) =>
+  widths.map((w) => `${image.replace('-1600.', `-${w}.`)} ${w}w`).join(', ');
