@@ -6,9 +6,11 @@ interface Props {
   class?: string;
   /** Signature affichée sous le nom. */
   slogan?: string;
+  /** Classes du slogan (ex. `max-xs:sr-only` : masqué visuellement, conservé pour le nom accessible). */
+  sloganClass?: string;
 }
 
-const { class: className, slogan } = Astro.props;
+const { class: className, slogan, sloganClass } = Astro.props;
 const city = site.name.replace(`${site.parent.name} `, '');
 ---
 
@@ -17,6 +19,6 @@ const city = site.name.replace(`${site.parent.name} `, '');
   <span class="flex flex-col leading-none">
     <span class="font-wordmark uppercase tracking-wordmark">{site.parent.name}</span>
     <span class="mt-[0.3em] font-city text-[1.2em] font-light tracking-city text-city-on-dark">{city}</span>
-    {slogan && <span class="mt-[0.45em] text-[0.62em] font-medium leading-none tracking-slogan opacity-80">{slogan}</span>}
+    {slogan && <span class:list={['mt-[0.45em] text-[0.62em] font-medium leading-none tracking-slogan opacity-80', sloganClass]}>{slogan}</span>}
   </span>
 </span>

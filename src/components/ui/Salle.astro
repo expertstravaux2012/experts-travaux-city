@@ -1,7 +1,8 @@
 ---
 // Cadre d'une salle plein écran : photo, voile, (calque de lumière), numéro en contour, puis panneau en biais (slot).
-// Le contenu du panneau est fourni par la section (Salles, Entree). Le panneau reste le dernier enfant du DOM.
+// Le contenu du panneau est fourni par la section (Salles, Entree). Le panneau précède la porte, dernier enfant du DOM.
 import { imageSrcset, type Realisation } from '../../data/realisations';
+import Porte from './Porte.astro';
 
 interface Props {
   id: string;
@@ -19,9 +20,11 @@ interface Props {
   lumiere?: boolean;
   /** Panneau compact sous md (photo visible) : pour les textes longs. */
   compact?: boolean;
+  /** Entrée du showroom : porte de sortie seule. */
+  premiere?: boolean;
 }
 
-const { id, labelledby, numero, image, alt, tone = 'dark', side = 'left', eager = false, lumiere = false, compact = false } = Astro.props;
+const { id, labelledby, numero, image, alt, tone = 'dark', side = 'left', eager = false, lumiere = false, compact = false, premiere = false } = Astro.props;
 
 const toneClass = tone === 'dark' ? 'salle-dark' : 'salle-light';
 const numberSide = side === 'left' ? 'right-0' : 'left-0';
@@ -50,4 +53,5 @@ const numberSide = side === 'left' ? 'right-0' : 'left-0';
   <div class:list={['salle-panel', compact && 'salle-panel-compact']}>
     <slot />
   </div>
+  <Porte position={premiere ? 'first' : 'mid'} />
 </section>

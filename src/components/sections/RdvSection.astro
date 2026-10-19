@@ -32,7 +32,7 @@ const linkClass =
 const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
 ---
 
-<Section tone="city" reveal id={id} labelledby={`${id}-title`}>
+<Section tone="city" reveal porte="last" id={id} labelledby={`${id}-title`}>
   <SalleScene class="mb-space-xl flex flex-col gap-space-md">
     <span class="salle-number-outline absolute right-0 top-0 -z-10 font-display text-salle-number" aria-hidden="true">{numero}</span>
     <SalleLabel id="rendez-vous" class="text-on-accent" />
@@ -168,6 +168,10 @@ const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
         }
       } catch {
         status.textContent = error ?? '';
+        if (submit) {
+          submit.disabled = false;
+          submit.focus();
+        }
       } finally {
         if (submit) submit.disabled = false;
       }

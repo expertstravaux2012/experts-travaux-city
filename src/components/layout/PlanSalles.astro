@@ -11,6 +11,9 @@ interface Props {
 
 const { part } = Astro.props;
 const { plan } = visite;
+
+// Aire de grille (md+) de chaque case : DOM, lecture et tabulation suivent l'ordre numérique 00 à 09.
+const AIRES = ['e', 'c', 's', 'l', 'k', 'b', 'p', 'm', 'a', 'r'];
 ---
 
 {
@@ -34,7 +37,7 @@ const { plan } = visite;
   part === 'dialog' && (
     <dialog id="plan-salles" data-plan-overlay aria-label={plan.title} class="plan-overlay z-plan m-0 h-full max-h-none w-full max-w-none border-0 p-0">
       <nav aria-label={plan.ariaNav} class="mx-auto flex min-h-full w-full max-w-(--plan-max-width) flex-col justify-center gap-space-lg px-margin py-space-2xl">
-        <div class="flex items-center justify-between gap-space-md">
+        <div class="flex flex-wrap items-center justify-between gap-space-md">
           <p class="font-display text-headline-md">{plan.title}</p>
           <button type="button" data-plan-close aria-label={plan.ariaClose} class="plan-trigger para shrink-0 gap-space-sm">
             <Icon name="close" class="h-5 w-5" />
@@ -42,8 +45,8 @@ const { plan } = visite;
           </button>
         </div>
         <div class="plan-grid">
-          {etapes.map((e) => (
-            <a href={`/#${e.id}`} data-etape-link data-cursor="entrer" class="plan-cell para">
+          {etapes.map((e, rang) => (
+            <a href={`/#${e.id}`} data-etape-link data-cursor="entrer" class="plan-cell para md:[grid-area:var(--aire)]!" style={`--aire:${AIRES[rang]}`}>
               <span class="label-sm">{salleNumero(e.numero)}</span>
               <span class="font-display text-headline-sm">{e.planLabel}</span>
             </a>
