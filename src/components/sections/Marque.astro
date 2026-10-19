@@ -10,7 +10,7 @@ import SalleScene from '../ui/SalleScene.astro';
 const numero = etapes.find((e) => e.id === 'apropos')?.numero ?? '';
 ---
 
-<Section tone="mid" id="apropos" reveal porte="mid" labelledby="marque-title">
+<Section tone="mid" id="apropos" reveal porte="mid" tall labelledby="marque-title">
   <SalleScene class="grid grid-cols-1 gap-space-lg desktop:grid-cols-12 desktop:items-center desktop:gap-gutter">
     <span class="salle-number-outline order-first justify-self-end font-display text-salle-number desktop:order-none desktop:col-span-5 desktop:col-start-8 desktop:row-start-2 desktop:self-start" aria-hidden="true">{numero}</span>
     <div class="flex flex-col gap-space-md desktop:col-span-7 desktop:row-span-2 desktop:row-start-1">

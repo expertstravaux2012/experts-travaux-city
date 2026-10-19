@@ -10,10 +10,12 @@ interface Props {
   reveal?: boolean;
   /** Salle à porte : battants pilotés par la timeline --salle de la section (mid = entrée + sortie, last = entrée seule). */
   porte?: 'mid' | 'last';
+  /** Section plus haute que ~1,3 x 100svh : plages de porte à durée fixe sous md (voir global.css). */
+  tall?: boolean;
   class?: string;
 }
 
-const { tone = 'surface', id, labelledby, reveal = false, porte, class: className = '' } = Astro.props;
+const { tone = 'surface', id, labelledby, reveal = false, porte, tall = false, class: className = '' } = Astro.props;
 
 const tones = {
   deep: 'bg-face-deep text-stone',
@@ -25,7 +27,7 @@ const tones = {
 };
 ---
 
-<section id={id} aria-labelledby={labelledby} class={`plane ${tones[tone]} ${reveal ? 'reveal-plane' : ''} ${porte ? 'section-porte' : ''}`}>
+<section id={id} aria-labelledby={labelledby} data-porte-tall={porte && tall ? '' : undefined} class={`plane ${tones[tone]} ${reveal ? 'reveal-plane' : ''} ${porte ? 'section-porte' : ''}`}>
   <div class={`mx-auto max-w-site px-margin py-space-xl desktop:py-space-2xl ${className}`}>
     <slot />
   </div>
@@ -38,6 +40,7 @@ const tones = {
       isolation: isolate;
       overflow: clip;
       view-timeline: --salle block;
+      view-timeline-inset: var(--porte-view-inset);
     }
   }
 </style>
