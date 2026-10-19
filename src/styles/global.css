@@ -1297,8 +1297,9 @@
 /* Porte sous md (< 768 px) : timeline --salle sans inset (portes indépendantes du bandeau cookies et du chrome), plages exprimées
    en longueur (svh) et non en % de la hauteur de la section, donc identiques pour toutes les hauteurs. cover = de l'arrivée du haut
    de la section au bas de l'écran (0) jusqu'à la sortie du bas par le haut de l'écran (100 %). Repères mesurés depuis le haut de l'écran :
-   - salle standard : l'entrante est fermée tant que son haut est sous 57 svh, ouverte dès 43 svh ; la sortante est ouverte tant que son
-     bas est sous 57 svh, fermée dès 43 svh. Les deux jambes se recouvrent : salle pleinement ouverte ~0,86 de sa hauteur (desktop : ~0,45).
+   - salle standard : l'entrante est fermée tant que son haut est sous 86 svh, ouverte dès 70 svh ; la sortante est ouverte tant que son
+     bas est sous 30 svh, fermée à 14 svh. Les portes ne couvrent que le bord de l'écran (couverture maximale ~70 %,
+     pas de fermeture totale à mi-jointure, contrairement au desktop).
    - section haute ([data-porte-tall], > ~1,3 x 100svh : Parcours, Marque, Rendez-vous) : jambes de --porte-tall-span (20 svh), qui finissent à
      --porte-tall-end (chrome + 2rem : une ancre pose le haut de la section à --spacing-chrome, elle arrive ouverte). Les cartes 01-04 du
      Parcours ont quitté l'écran avant la fermeture ; la dernière garantie, en fin de section, est encore en partie visible pendant
@@ -1308,10 +1309,10 @@
     --porte-view-inset: 0;
     --porte-tall-end: calc(var(--spacing-chrome) + 2rem);
     --porte-tall-span: 20svh;
-    --porte-range-in-start: cover 43svh;
-    --porte-range-in-end: cover 57svh;
-    --porte-range-out-start: cover calc(100% - 57svh);
-    --porte-range-out-end: cover calc(100% - 43svh);
+    --porte-range-in-start: cover 14svh;
+    --porte-range-in-end: cover 30svh;
+    --porte-range-out-start: cover calc(100% - 30svh);
+    --porte-range-out-end: cover calc(100% - 14svh);
   }
 
   [data-porte-tall] {
