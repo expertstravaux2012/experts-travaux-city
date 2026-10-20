@@ -18,7 +18,7 @@ const city = site.name.replace(`${site.parent.name} `, '');
   <img src={site.logo.markDarkWebp} alt="" width="144" height="144" class="h-[2.7em] w-auto" decoding="async" />
   <span class="flex flex-col leading-none">
     <span class="font-wordmark uppercase tracking-wordmark">{site.parent.name}</span>
-    <span class="mt-[0.3em] font-city text-[1.2em] font-light tracking-city text-city-on-dark">{city}</span>
-    {slogan && <span class:list={['mt-[0.45em] text-[0.62em] font-medium leading-none tracking-slogan opacity-80', sloganClass]}>{slogan}</span>}
+    <span class="mt-[0.3em] font-city italic text-[1.2em] tracking-city text-city-on-dark">{city}</span>
+    {slogan && <span class:list={['mt-[0.45em] pl-(--tracking-slogan) whitespace-nowrap font-slogan text-slogan uppercase opacity-80', sloganClass]}>{slogan}</span>}
   </span>
 </span>

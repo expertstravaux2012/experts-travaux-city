@@ -16,7 +16,7 @@ Enrichie de la charte Experts Travaux (cube, Hanken Grotesk, contrastes AA) :
 
 - **Plans de couleur** (trois faces du logo) : `face-deep` #1C1B1B, `face-dark` #2E2E2E, `face-mid` #656262, `face-light` #D9D6D1, `stone` #FAF9F9. Plans empilés à arête haute en biais (`@utility plane`), tuiles/boutons/images en parallélogrammes (`para`, `para-lg`).
 - **Terracotta** : `city` #C4603C (graphismes, grands textes), `city-strong` #A34A28 (aplats avec texte blanc, texte sur fond clair), `city-on-dark` #E8946F (texte sur fond sombre).
-- **Typo** : Montserrat Light (`font-display`, titres ; `font-city` pour « City »), Hanken Grotesk (texte), Anton (nom de marque dans le logo). Ni Newsreader, ni monospace, ni capitales d'étiquette.
+- **Typo** : Montserrat Light (`font-display`, titres), Hanken Grotesk (texte), Anton (`font-wordmark`, nom de marque dans le logo), Libre Caslon Text Italic 400 (`font-city`, uniquement le mot « City » : logo, H1 de l'Entrée, hero), Oswald Light 300 (`font-slogan`, `text-slogan`, uniquement le slogan du logo). Ni Newsreader, ni monospace, ni capitales d'étiquette : seule exception validée, le slogan du logo en capitales condensées interlettrées (`tracking-slogan` 0,3em).
 - **Boutons** : `accent`, `primary-light`, `primary`, `secondary(-light)`.
 - **Écarts validés par Hery** (exceptions explicites à « pas d'ombre » et « tout en parallélogrammes ») :
   - `shadow-floating` (hairline + ombre portée douce) : seule ombre autorisée, élévation de la carte du formulaire (RdvSection).

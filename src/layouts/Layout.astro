@@ -6,8 +6,11 @@ import '@fontsource/hanken-grotesk/latin-500.css';
 import '@fontsource/hanken-grotesk/latin-600.css';
 import '@fontsource/anton/latin-400.css';
 import '@fontsource/montserrat/latin-300.css';
+import '@fontsource/libre-caslon-text/latin-400-italic.css';
+import '@fontsource/oswald/latin-300.css';
 import hanken400 from '@fontsource/hanken-grotesk/files/hanken-grotesk-latin-400-normal.woff2?url';
 import city300 from '@fontsource/montserrat/files/montserrat-latin-300-normal.woff2?url';
+import caslon400i from '@fontsource/libre-caslon-text/files/libre-caslon-text-latin-400-italic.woff2?url';
 import anton400 from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
 import '../styles/global.css';
 import { site } from '../data/site';
@@ -78,6 +81,7 @@ const graph = jsonLd === false ? null : buildGraph([organizationNode(), ...jsonL
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href={hanken400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={anton400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={caslon400i} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={city300} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     <meta name="description" content={description} />

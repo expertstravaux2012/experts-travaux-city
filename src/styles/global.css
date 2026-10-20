@@ -81,8 +81,13 @@
   --font-sans: 'Hanken Grotesk', sans-serif;
   /* Police officielle du nom de marque (wordmark) : dans le Logo uniquement. */
   --font-wordmark: 'Anton', sans-serif;
-  /* Showroom « City » : police du mot City (logo) — Montserrat Light, interlettrage large. Réservée à la marque. */
-  --font-city: 'Montserrat', sans-serif;
+  /* Showroom « City » : police du mot City (logo, H1 de l'Entrée, hero) — Libre Caslon Text Italic 400 (serif
+     italique à fort contraste du logo client). Réservée au seul mot « City » ; les titres restent en Montserrat Light.
+     Utiliser avec `italic` (la police n'existe qu'en 400, pas de graisse légère). */
+  --font-city: 'Libre Caslon Text', serif;
+  /* Slogan du logo (« MAISON DE CONFIANCE ») : Oswald Light 300, capitales condensées interlettrées.
+     Exception unique à « pas de capitales d'étiquette » : limitée au logo. */
+  --font-slogan: 'Oswald', sans-serif;
 
   /* Showroom « City » : seule couleur ajoutée à la charte Experts Travaux (terracotta du logo, échantillonnée sur le favicon).
      city        #C4603C : 4.1:1 sur blanc, 3.2:1 sur inverse-surface -> graphismes et texte >= 18px uniquement.
@@ -108,7 +113,8 @@
   /* Échelle typographique. Chaque style = taille + interligne + graisse + tracking
      (--text-X--line-height / --font-weight / --letter-spacing, Tailwind >= 4.1).
      La famille n'est pas portable par --text-* : l'associer via font-display / font-sans.
-       text-hero                  clamp 72-192px  0.9   0.1em     (font-city, nom « City » du hero)
+       text-hero                  clamp 72-192px  0.9   0.01em    (font-city italique 400, nom « City » du hero)
+       text-slogan                0.62em  1     0.3em     300 (font-slogan, capitales, logo seulement)
        text-display-xl            72/80  300 -0.02em   (font-display)
        text-display-xl-mobile     44/52  300 -0.01em   (font-display, < 768px)
        text-headline-lg           48/56  300 -0.015em  (font-display)
@@ -122,7 +128,14 @@
      Libellés : utilitaires label-md / label-sm (Hanken, casse de phrase). */
   --text-hero: clamp(4.5rem, 15vw, 12rem);
   --text-hero--line-height: 0.9;
-  --text-hero--letter-spacing: 0.1em;
+  --text-hero--letter-spacing: 0.01em;
+  --text-hero--font-weight: 400;
+
+  /* Slogan du logo : relatif au corps du Logo (em), à associer à font-slogan et uppercase. */
+  --text-slogan: 0.62em;
+  --text-slogan--line-height: 1;
+  --text-slogan--font-weight: 300;
+  --text-slogan--letter-spacing: 0.3em;
 
   --text-display-xl: 4.5rem;
   --text-display-xl--line-height: 5rem;
@@ -170,8 +183,8 @@
 
   /* Interlettrages du logo (tracking-wordmark / tracking-city / tracking-slogan). */
   --tracking-wordmark: 0.08em;
-  --tracking-city: 0.34em;
-  --tracking-slogan: 0.06em;
+  --tracking-city: 0.01em; /* serif italique : quasi neutre */
+  --tracking-slogan: 0.3em;
 
   /* Espacement — p-space-md, gap-space-lg, py-space-xl… (base 4px : --spacing 0.25rem par défaut) */
   --spacing-space-xs: 0.25rem;

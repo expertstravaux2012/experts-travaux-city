@@ -25,6 +25,6 @@ Tu es responsable du SEO et de la performance du site **Experts Travaux City**.
 
 - Hero Three.js : chargé **à la demande** (`import()` dynamique), hors du bundle initial ; repli statique si pas de WebGL / mouvement réduit / Save-Data. Ne pas le charger en dur dans le `<head>`.
 - Images : utiliser les variantes `-1600.webp` (35–92 Ko) ; les originaux 2752 px de `public/assets/city/` ne doivent pas être servis. `width`/`height` renseignés (CLS), `loading="eager"` + `fetchpriority="high"` uniquement pour l'image LCP, le reste en `lazy`.
-- Polices : seulement les graisses utilisées (Montserrat 300/500, Hanken, Anton), préchargement des polices critiques.
+- Polices : seulement les graisses utilisées (Montserrat 300/500, Hanken, Anton, Libre Caslon Text italic 400, Oswald 300), préchargement des polices critiques.
 - Lighthouse > 90 (perf, a11y, SEO) ; signale toute régression après build. La visite 3D pèse : vérifier le poids du chunk Three.js et les textures.
 - Tu ne touches ni au design (design-system) ni à la logique 3D (helix-3d).
