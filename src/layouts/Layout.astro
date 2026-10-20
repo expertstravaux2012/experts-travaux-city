@@ -76,9 +76,10 @@ const graph = jsonLd === false ? null : buildGraph([organizationNode(), ...jsonL
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="robots" content={robots} />
-    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="preload" href={hanken400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={anton400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={caslon400i} as="font" type="font/woff2" crossorigin />
