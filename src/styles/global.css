@@ -576,7 +576,7 @@
 /* ===== Salle plein cadre : section 100svh, photo en fond, voile, panneau en biais, numéro en contour =====
    Ordre du DOM (tous absolus sauf le panneau) : salle-photo, salle-scrim, [salle-light-layer], salle-number-outline,
    salle-panel. À combiner avec salle-dark / salle-light (fournissent --panel-*) et plane.
-   Mobile : colonne, panneau en bas, photo visible au-dessus ; md+ : rangée, panneau à gauche (data-side="left", défaut)
+   Mobile : colonne, panneau centré sous le header ; md+ : rangée, panneau à gauche (data-side="left", défaut)
    ou à droite (data-side="right") sur le conteneur salle-frame. */
 @utility salle-frame {
   position: relative;
@@ -602,12 +602,14 @@
   }
 
   /* Sous md, une ancre aligne le haut de la salle sur le viewport (le header recouvre la photo).
-     scroll-padding-top vaut le chrome : sans cette marge négative, la salle s'arrête sous le header
-     et le bas du panneau (texte, bouton) passe sous le pli.
-     Le padding réserve le chrome : le panneau commence dessous, il ne se colle pas au bord haut. */
+     Le panneau est centré dans l'espace sous le header (marge auto). S'il est plus haut que cet
+     espace, les marges tombent à 0 et il part du haut : le titre n'est plus coupé (flex-end
+     faisait déborder le surplus vers le haut, sous le header — on ne voyait plus que « bain »). */
   @media (width < theme(--breakpoint-md)) {
+    justify-content: flex-start;
     scroll-margin-top: calc(var(--spacing-chrome) * -1);
     padding-top: var(--spacing-chrome);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
@@ -665,6 +667,13 @@
 
   @media (width >= theme(--breakpoint-md)) {
     width: min(100%, var(--salle-panel-width));
+  }
+
+  /* Sous md : padding resserré pour tenir dans l'écran (iPhone 13, barres Safari), centré via les marges. */
+  @media (width < theme(--breakpoint-md)) {
+    flex-shrink: 0;
+    margin-block: auto;
+    padding-block: var(--spacing-space-lg);
   }
 
   [data-side='right'] > & {
@@ -1431,6 +1440,40 @@
     transition-duration: 0ms !important;
     opacity: 1;
     transform: none;
+  }
+}
+
+/* iOS Safari annonce animation-timeline: view() mais ne fait pas avancer la timeline au toucher.
+   fill-mode both fige alors l'état caché : Méthode et Maison restent à opacity 0 (on scrolle dans le vide),
+   les portes restent fermées par-dessus. État final visible. Les portes restent sur les autres navigateurs. */
+@supports (-webkit-touch-callout: none) {
+  @media (hover: none) {
+    .reveal-plane,
+    .desktop\:reveal-plane,
+    [data-scroll-anim],
+    [data-scroll-anim] *,
+    [data-cube='build'] .cube-face {
+      animation: none !important;
+      animation-timeline: auto !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .salle-photo,
+    .salle-panel,
+    .salle-line-inner,
+    .salle-number-outline,
+    .salle-light-layer {
+      animation: none !important;
+      animation-timeline: auto !important;
+      translate: none !important;
+      scale: none !important;
+      transform: none !important;
+    }
+
+    .porte {
+      display: none !important;
+    }
   }
 }
 
