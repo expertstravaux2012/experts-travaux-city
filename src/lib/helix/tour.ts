@@ -214,7 +214,7 @@ export function startHelix(cfg: HelixConfig) {
     }
     ribbon = new Mesh(
       new TubeGeometry(new CatmullRomCurve3(pts), pts.length * 3, 0.16, 10, false),
-      new MeshStandardMaterial({ color: 0xc4603c, metalness: 0.85, roughness: 0.3 }),
+      new MeshStandardMaterial({ color: 0xb24824, metalness: 0.85, roughness: 0.3 }),
     );
     group.add(ribbon);
 

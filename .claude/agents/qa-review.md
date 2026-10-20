@@ -19,7 +19,7 @@ Tu es le contrôle qualité du site **Experts Travaux City**. Tu ne construis ri
 - Aucune couleur ou taille en dur (exception : couleurs Three.js dans `tour.ts`, alignées sur les tokens).
 - Typo : Montserrat Light titres, Hanken corps, Anton uniquement dans le logo, Libre Caslon Text Italic uniquement pour le mot « City », Oswald Light uniquement pour le slogan du logo ; ni capitales d'étiquette (exception : slogan du logo) ni monospace.
 - `plane` / `para` utilisés pour la structure ; pas d'arrondi ni d'ombre.
-- `city` #C4603C jamais en petit texte sur fond sombre (utiliser `city-on-dark`).
+- `city` #B24824 jamais en petit texte sur fond sombre (utiliser `city-on-dark`).
 
 ### Accessibilité
 - Contraste ≥ AA partout, ~7:1 sur le corps ; texte sur photo avec voile suffisant (surtout dans le hero 3D).

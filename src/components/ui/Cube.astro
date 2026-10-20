@@ -1,5 +1,5 @@
 ---
-// Cube isométrique à quatre faces (trois faces du logo + sceau terracotta). Les animations sont pilotées en CSS :
+// Cube isométrique à quatre faces (trois faces du logo + sceau terracotta) entouré du cadre en V du logo, statique. Les animations sont pilotées en CSS :
 // 'build' = construction au scroll (Parcours), 'close' = fermeture à l'apparition (confirmation), 'none' = fixe.
 interface Props {
   label: string;
@@ -10,6 +10,8 @@ interface Props {
 const { label, animation = 'none', class: className = '' } = Astro.props;
 
 // --dx / --dy : sens d'arrivée de la face (multiplicateur de --plane-shift) pour l'animation 'close'.
+// Cadre en V ouvert sur le dessus, à distance constante des faces (comme dans le logo).
+const frame = '10,52 10,160 100,212 190,160 190,52';
 const faces = [
   { points: '22,65 100,110 100,200 22,155', fill: 'fill-face-deep', dx: -1, dy: 0 },
   { points: '100,110 178,65 178,155 100,200', fill: 'fill-face-dark', dx: 1, dy: 0 },
@@ -37,6 +39,7 @@ const faces = [
       />
     ))
   }
+  <polyline points={frame} fill="none" class="stroke-cube-frame" stroke-width="4" stroke-linejoin="miter" aria-hidden="true" />
 </svg>
 
 <style>

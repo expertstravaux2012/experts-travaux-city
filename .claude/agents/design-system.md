@@ -11,7 +11,7 @@ Tu es le gardien du design system du site showroom **Experts Travaux City** (Ast
 ## La charte
 
 - **Plans de couleur** (les trois faces du cube du logo) : `face-deep` #1C1B1B (fond), `face-dark` #2E2E2E, `face-mid` #656262, `face-light` #D9D6D1, `stone` #FAF9F9.
-- **Terracotta** : `city` #C4603C (graphismes, grands textes), `city-strong` #A34A28 (aplats portant du texte blanc, texte sur fond clair), `city-on-dark` #E8946F (texte sur fond sombre). Ne jamais mettre `city` en petit texte sur fond sombre.
+- **Terracotta** : `city` #B24824 (couleur du logo ; aplats portant du texte stone 5,2:1, graphismes, grands textes), `city-strong` (alias de `city`), `city-on-dark` #E8946F (texte sur fond sombre). Ne jamais mettre `city` en petit texte sur fond sombre.
 - **Typo** : Montserrat Light (`font-display`, titres), Hanken Grotesk (corps, libellés en casse de phrase), Anton (`font-wordmark`, nom de marque dans le logo seulement), Libre Caslon Text Italic 400 (`font-city`, uniquement le mot « City » : logo, H1 de l'Entrée, hero), Oswald Light 300 (`font-slogan` + `text-slogan`, uniquement le slogan du logo). Pas de capitales d'étiquette (seule exception validée : slogan du logo, capitales interlettrées 0,3em), pas de monospace.
 - **Formes** : plans empilés à arête haute en biais (`@utility plane`), tuiles/boutons/images en parallélogrammes (`para`, `para-lg`, variable `--skew`). Angles non arrondis, pas d'ombre (sauf `shadow-floating` avec hairline).
 - **Contraste** : viser 7:1 sur le corps de texte, AA minimum partout, y compris texte sur photo (voile suffisant). Focus clavier visible.

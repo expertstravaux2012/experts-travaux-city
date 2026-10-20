@@ -89,11 +89,14 @@
      Exception unique à « pas de capitales d'étiquette » : limitée au logo. */
   --font-slogan: 'Oswald', sans-serif;
 
-  /* Showroom « City » : seule couleur ajoutée à la charte Experts Travaux (terracotta du logo, échantillonnée sur le favicon).
-     city        #C4603C : 4.1:1 sur blanc, 3.2:1 sur inverse-surface -> graphismes et texte >= 18px uniquement.
-     city-strong #A34A28 : 5.6:1 sur le fond -> texte courant et liens sur fond clair (AA). */
-  --color-city: #c4603c;
-  --color-city-strong: #a34a28;
+  /* Showroom « City » : seule couleur ajoutée à la charte Experts Travaux (terracotta du logo, mesurée sur « City »
+     de docs/marque/Logo_neuf.jpg : rgb(178,72,36)).
+     city        #B24824 : 5.5:1 sur blanc, 5.2:1 sur stone (texte stone sur aplat : AA), 3.8:1 sur face-light,
+                 3.2:1 sur obsidian, 3.1:1 sur face-deep, 2.5:1 sur face-dark (< 3:1 : décor seulement)
+                 -> aplats, graphismes et texte >= 18px ; jamais en petit texte sur fond sombre (city-on-dark).
+     city-strong : alias de city (l'ancien #A34A28 n'avait plus d'écart utile avec le terracotta du logo). */
+  --color-city: #b24824;
+  --color-city-strong: var(--color-city);
 
   /* Showroom « City » : les trois faces du cube du logo deviennent les plans de couleur du site. */
   --color-face-deep: #1c1b1b; /* fond du site, pied de page */
@@ -104,11 +107,13 @@
   /* city-on-dark #E8946F : 5.5:1 sur inverse-surface / 7.5:1 sur obsidian (texte « City » sur fond sombre). */
   /* Sur face-dark : 5.7:1 (AA). */
   --color-city-on-dark: #e8946f;
-  /* Texte posé sur un aplat terracotta (city-strong : 5.6:1) : stone, pas de blanc pur. */
+  /* Texte posé sur un aplat terracotta (city-strong = city : stone 5.2:1, blanc 5.5:1) : stone, pas de blanc pur. */
   --color-on-accent: var(--color-stone);
   /* Bordure des champs de formulaire (composant d'interface, WCAG 1.4.11 : >= 3:1) :
      4.4:1 sur face-deep, 3.5:1 sur face-dark. face-mid (2.8:1) est insuffisant. */
   --color-field-border: #858080;
+  /* Cadre en V du cube (graphisme, WCAG 1.4.11 : >= 3:1) : même gris que field-border, 4.4:1 sur face-deep. */
+  --color-cube-frame: var(--color-field-border);
 
   /* Échelle typographique. Chaque style = taille + interligne + graisse + tracking
      (--text-X--line-height / --font-weight / --letter-spacing, Tailwind >= 4.1).
@@ -358,16 +363,16 @@
      Panneaux : aucun flou (pas de backdrop-filter), le contraste est celui du voile seul. Pire cas (photo blanche
      sous le panneau sombre, photo noire sous le clair) :
        sombre  88 % face-deep : stone 11.3:1 ; city-on-dark 5.0:1 (7.3:1 sur face-deep opaque)
-       clair   92 % face-light : on-surface 10.1:1 ; city-strong 3.4:1 (grand texte uniquement, H2).
+       clair   92 % face-light : on-surface 10.1:1 ; city-strong 3.2:1 (grand texte uniquement, H2).
      Variante compacte (< md, panneau plus bas, photo visible) :
        sombre  86 % : stone 10.5:1 ; city-on-dark 4.7:1 (AA texte courant tenu ; 82 % donnait 4.1:1, refusé)
-       clair   90 % : on-surface 9.6:1 ; city-strong 3.3:1 (grand texte uniquement). */
+       clair   92 % : on-surface 9.9:1 ; city-strong 3.17:1 (grand texte uniquement, titre ; 90 % donnait 3.0:1). */
   --scrim-photo: 66%;
   --scrim-soft: 35%;
   --scrim-panel-dark: 88%;
   --scrim-panel-light: 92%;
   --scrim-panel-dark-compact: 86%;
-  --scrim-panel-light-compact: 90%;
+  --scrim-panel-light-compact: 92%;
   --skew-panel: 3rem; /* biais de l'arête du panneau (= 48px de la maquette) */
   --salle-panel-width: 40rem;
 
@@ -582,7 +587,7 @@
   --panel-bg: color-mix(in srgb, var(--color-face-light) var(--scrim-panel-light), transparent);
   --panel-bg-compact: color-mix(in srgb, var(--color-face-light) var(--scrim-panel-light-compact), transparent);
   --panel-fg: var(--color-on-surface);
-  /* city-strong sur face-light : 4.1:1, grand texte (titre) seulement ; jamais city. */
+  /* city-strong (= city) sur face-light : 3.8:1, grand texte (titre) seulement. */
   --panel-accent: var(--color-city-strong);
 }
 

@@ -20,7 +20,7 @@ Tu es responsable du hero en hélice du site **Experts Travaux City**.
 - **Progressive enhancement** : sans WebGL, avec `prefers-reduced-motion` ou Save-Data, le repli doit rester complet et beau. Si le chargement du module échoue, retirer `is-3d`.
 - Performance : pixel ratio plafonné (1,5 mobile / 2), rendu en pause hors écran (IntersectionObserver), textures ≤ 1600 px, `dispose()` complet.
 - Mobile : `dist` calculée pour que la photo tienne en largeur ; décalage vertical à l'intro. Vérifier 390 px et 1440 px.
-- Couleurs en dur dans `tour.ts` (WebGL ne lit pas les tokens) : les garder alignées sur `global.css` (`city` #C4603C, `city-on-dark` #E8946F, `face-deep` #1C1B1B, `face-light` #D9D6D1).
+- Couleurs en dur dans `tour.ts` (WebGL ne lit pas les tokens) : les garder alignées sur `global.css` (`city` #B24824, `city-on-dark` #E8946F, `face-deep` #1C1B1B, `face-light` #D9D6D1).
 - Toute évolution majeure (nombre de photos, géométrie, nouvelle interaction) est **conséquente** : remonte-la à l'orchestrateur.
 
 ## Vérifier visuellement
