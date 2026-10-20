@@ -357,8 +357,6 @@
   --scrim-panel-light-compact: 90%;
   --skew-panel: 3rem; /* biais de l'arête du panneau (= 48px de la maquette) */
   --salle-panel-width: 40rem;
-  /* Variante compacte (salle-panel-compact, < md) : hauteur maximale du panneau (le reste = photo visible). */
-  --salle-panel-compact-height: 68svh;
 
   /* Numéro en contour : décoratif (aria-hidden), exempté de contraste ; stone à 50 % sur voile sombre. */
   --stroke-outline: 0.125rem;
@@ -602,6 +600,15 @@
     view-timeline: --salle block;
     view-timeline-inset: var(--porte-view-inset);
   }
+
+  /* Sous md, une ancre aligne le haut de la salle sur le viewport (le header recouvre la photo).
+     scroll-padding-top vaut le chrome : sans cette marge négative, la salle s'arrête sous le header
+     et le bas du panneau (texte, bouton) passe sous le pli.
+     Le padding réserve le chrome : le panneau commence dessous, il ne se colle pas au bord haut. */
+  @media (width < theme(--breakpoint-md)) {
+    scroll-margin-top: calc(var(--spacing-chrome) * -1);
+    padding-top: var(--spacing-chrome);
+  }
 }
 
 /* <img> en fond (jamais background-image : LCP, srcset). Déborde des amplitudes de parallaxe. */
@@ -674,14 +681,11 @@
   }
 }
 
-/* Variante compacte du panneau (< md), à ajouter à salle-panel (Entrée, ou toute salle au texte long) : hauteur
-   plafonnée en svh pour laisser la photo visible au-dessus, marge verticale réduite, voile plus léger (AA tenu,
-   ratios dans @theme). Défile en interne si le contenu dépasse le plafond (aucun texte rogné). md+ : sans effet.
-   Le décalage sous le chrome (pt-chrome) ne s'y applique pas : le panneau est en bas de l'écran. */
+/* Variante compacte du panneau (< md) : marge verticale réduite, voile plus léger (AA tenu, ratios dans @theme).
+   Pas de plafond : un max-height + défilement interne collait le texte en haut et cachait la fin (bouton)
+   sans que le geste soit visible. Si le texte dépasse l'écran, la salle grandit et la page le révèle. md+ : sans effet. */
 @utility salle-panel-compact {
   @media (width < theme(--breakpoint-md)) {
-    max-height: var(--salle-panel-compact-height);
-    overflow-y: auto;
     padding-block: var(--spacing-space-lg);
     background-color: var(--panel-bg-compact, var(--panel-bg));
   }
@@ -1295,24 +1299,24 @@
 /* Filet terracotta (city-on-dark), enfant d'un battant : il voyage avec lui. Centré verticalement, de part et d'autre
    de la jonction (gauche : côté bas de la diagonale ; droit : côté haut). */
 /* Porte sous md (< 768 px) : timeline --salle sans inset (portes indépendantes du bandeau cookies et du chrome), plages exprimées
-   en longueur (svh) et non en % de la hauteur de la section, donc identiques pour toutes les hauteurs. cover = de l'arrivée du haut
-   de la section au bas de l'écran (0) jusqu'à la sortie du bas par le haut de l'écran (100 %). Repères mesurés depuis le haut de l'écran :
-   - salle standard : l'entrante est fermée tant que son haut est sous 86 svh, ouverte dès 70 svh ; la sortante est ouverte tant que son
-     bas est sous 30 svh, fermée à 14 svh. Les portes ne couvrent que le bord de l'écran (couverture maximale ~70 %,
-     pas de fermeture totale à mi-jointure, contrairement au desktop).
-   - section haute ([data-porte-tall], > ~1,3 x 100svh : Parcours, Marque, Rendez-vous) : jambes de --porte-tall-span (20 svh), qui finissent à
-     --porte-tall-end (chrome + 2rem : une ancre pose le haut de la section à --spacing-chrome, elle arrive ouverte). Les cartes 01-04 du
-     Parcours ont quitté l'écran avant la fermeture ; la dernière garantie, en fin de section, est encore en partie visible pendant
-     qu'elle se ferme (jusqu'à ~80 % de fermeture à 390x844). */
+   en longueur (svh). cover = de l'arrivée du haut de la section au bas de l'écran (0) jusqu'à la sortie du bas par le haut (100 %).
+   Salle standard (100 svh, cover = 200 svh) :
+   - entrante fermée tant que son haut est sous 55 svh, ouverte à 20 svh ;
+   - sortante ouverte tant que son haut est au-dessus de -20 svh, fermée quand son haut atteint -50 svh (il reste 50 svh à l'écran,
+     sous le header : la fermeture est visible ; l'ancienne fin à 14 svh tombait derrière le chrome et le texte restait collé dessous).
+   Autour de l'alignement (haut entre 20 svh et -20 svh) les deux battants sont ouverts : le panneau, en bas, est lisible en entier.
+   À mi-jointure les deux portes sont fermées.
+   Section haute ([data-porte-tall], Parcours, Marque, Rendez-vous) : jambes de --porte-tall-span (20 svh), qui finissent à
+   --porte-tall-end (chrome + 2rem : une ancre pose le haut de la section à --spacing-chrome, elle arrive ouverte). */
 @media (width < theme(--breakpoint-md)) {
   :root {
     --porte-view-inset: 0;
     --porte-tall-end: calc(var(--spacing-chrome) + 2rem);
     --porte-tall-span: 20svh;
-    --porte-range-in-start: cover 14svh;
-    --porte-range-in-end: cover 30svh;
-    --porte-range-out-start: cover calc(100% - 30svh);
-    --porte-range-out-end: cover calc(100% - 14svh);
+    --porte-range-in-start: cover 45svh;
+    --porte-range-in-end: cover 80svh;
+    --porte-range-out-start: cover calc(100% - 80svh);
+    --porte-range-out-end: cover calc(100% - 50svh);
   }
 
   [data-porte-tall] {
