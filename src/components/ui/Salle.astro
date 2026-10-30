@@ -10,7 +10,13 @@ interface Props {
   labelledby: string;
   /** Numéro décoratif en contour (« 03 »). */
   numero: string;
-  image: Realisation;
+  image: Pick<Realisation, 'image' | 'width' | 'height'>;
+  /** Srcset de l'image si ses variantes ne suivent pas 480/800/1600. */
+  srcset?: string;
+  /** Variante portrait (3:4) sous md et sur écran vertical, avec son propre srcset. */
+  portrait?: { srcset: string; width: number; height: number };
+  /** Classes de l'image (ex. cadrage sous md). */
+  photoClass?: string;
   alt: string;
   tone?: 'dark' | 'light';
   side?: 'left' | 'right';
@@ -22,18 +28,22 @@ interface Props {
   compact?: boolean;
   /** Entrée du showroom : porte de sortie seule. */
   premiere?: boolean;
+  /** Voile en haut de salle pour garder les liens du header lisibles sur la photo. */
+  voileHeader?: boolean;
 }
 
-const { id, labelledby, numero, image, alt, tone = 'dark', side = 'left', eager = false, lumiere = false, compact = false, premiere = false } = Astro.props;
+const { id, labelledby, numero, image, srcset, portrait, photoClass, alt, tone = 'dark', side = 'left', eager = false, lumiere = false, compact = false, premiere = false, voileHeader = false } = Astro.props;
 
 const toneClass = tone === 'dark' ? 'salle-dark' : 'salle-light';
 const numberSide = side === 'left' ? 'right-0' : 'left-0';
 ---
 
-<section id={id} aria-labelledby={labelledby} data-salle data-side={side} class={`salle-frame ${toneClass}`}>
+<section id={id} aria-labelledby={labelledby} data-salle data-side={side} class:list={['salle-frame', toneClass]}>
+  <picture class="contents">
+    {portrait && <source media="(max-width: 47.99rem), (max-aspect-ratio: 1/1)" srcset={portrait.srcset} sizes="100vw" width={portrait.width} height={portrait.height} />}
   <img
     src={image.image}
-    srcset={imageSrcset(image.image)}
+    srcset={srcset ?? imageSrcset(image.image)}
     sizes="100vw"
     width={image.width}
     height={image.height}
@@ -42,9 +52,11 @@ const numberSide = side === 'left' ? 'right-0' : 'left-0';
     loading={eager ? 'eager' : 'lazy'}
     fetchpriority={eager ? 'high' : 'auto'}
     decoding="async"
-    class="salle-photo"
+    class:list={['salle-photo', photoClass]}
   />
+  </picture>
   <div class="salle-scrim" aria-hidden="true"></div>
+  {voileHeader && <div class="salle-scrim-header" aria-hidden="true"></div>}
   {lumiere && <div class="salle-light-layer" aria-hidden="true"></div>}
   <span
     class={`salle-number-outline absolute top-0 font-display text-salle-number md:top-auto md:bottom-0 ${numberSide}`}

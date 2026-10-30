@@ -1,6 +1,7 @@
 // Salles 01 à 06 de la home (une par univers de realisations.ts) et libellés d'interface associés.
 // Textes reformulés à partir de realisations.ts / home.ts / showroom.ts uniquement : aucun produit, teinte, marque
-// ou équipement exposé n'est affirmé. Les visuels sont des rendus illustratifs, jamais des photos du showroom.
+// ou équipement exposé n'est affirmé. Les visuels des salles 01 à 06 sont des rendus illustratifs, jamais des photos du showroom
+// (seul le fond de l'Entrée, salle 00 : `entree.photo`, est une vraie photo du showroom).
 // `categorie` = clé de jointure avec `realisations` (image, dimensions).
 // `accroche` et `cta` : PROPOSITIONS À VALIDER par Hery (textes provisoires).
 
@@ -135,10 +136,23 @@ export const entree = {
   accent: 'showroom',
   texte:
     'Choisissez vos matériaux, comparez vos options et posez vos questions à la personne qui suivra votre chantier. Venez avec vos idées ou un début de plan : nous les ordonnons avec vous. Vous décidez en confiance avant de lancer vos travaux.',
-  /** Photo décorative : vide, la même image est décrite en salle 06. */
-  alt: '',
   cta: { label: 'Commencer la visite', href: '/#cuisine' },
   rdv: { label: 'Prendre rendez-vous', href: '/#rendez-vous' },
+  /** Photo réelle du showroom, fond plein cadre de l'Entrée : paysage dès md, portrait en dessous. */
+  photo: {
+    paysage: {
+      image: '/assets/city/showroom-experts-travaux-city-paysage-1600.webp',
+      srcset: [800, 1200, 1600].map((w) => `/assets/city/showroom-experts-travaux-city-paysage-${w}.webp ${w}w`).join(', '),
+      width: 1600,
+      height: 900,
+    },
+    portrait: {
+      srcset: [480, 800, 1200].map((w) => `/assets/city/showroom-experts-travaux-city-${w}.webp ${w}w`).join(', '),
+      width: 800,
+      height: 1066,
+    },
+    alt: "Accueil du showroom : un bureau en bois clair entouré de fauteuils, devant un mur de rangements noirs aux rubriques des métiers du bâtiment, sous un plafond en lambris blanc, sur un parquet clair.",
+  },
 } as const;
 
 /** Indice de la salle Luminaires, affiché seulement avec un pointeur fin. PROPOSITION À VALIDER. */

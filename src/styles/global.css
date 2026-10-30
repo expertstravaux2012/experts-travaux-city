@@ -369,6 +369,7 @@
        clair   92 % : on-surface 9.9:1 ; city-strong 3.17:1 (grand texte uniquement, titre ; 90 % donnait 3.0:1). */
   --scrim-photo: 66%;
   --scrim-soft: 35%;
+  --scrim-header: 88%;
   --scrim-panel-dark: 88%;
   --scrim-panel-light: 92%;
   --scrim-panel-dark-compact: 86%;
@@ -663,6 +664,20 @@
   z-index: -1;
   pointer-events: none;
   background-color: color-mix(in srgb, var(--color-face-deep) var(--scrim-soft), transparent);
+}
+
+/* Voile du header (Entrée seule) : face-deep opaque sous le bandeau et le header, fondu ensuite. */
+@utility salle-scrim-header {
+  position: absolute;
+  inset: 0 0 auto;
+  height: calc(var(--spacing-chrome) + var(--spacing-space-xl));
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-face-deep) var(--scrim-header), transparent) var(--spacing-chrome),
+    transparent
+  );
 }
 
 /* Panneau en biais (même famille que para-lg, arête de 3rem). Texte = --panel-fg sur --panel-bg. */
