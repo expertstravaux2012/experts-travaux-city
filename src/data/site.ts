@@ -7,7 +7,7 @@ export const site = {
     url: 'https://experts-travaux.fr',
     linkLabel: 'Découvrir Experts Travaux',
   },
-  /** Domaine de production (sans slash final). À CONFIRMER avec Hery (sous-domaine ou domaine dédié). */
+  /** Domaine de production (sans slash final). */
   url: 'https://city.experts-travaux.fr',
   /**
    * Interrupteur unique d'indexation. false = noindex, nofollow sur toutes les pages,
@@ -61,10 +61,24 @@ export const site = {
   /** Coordonnées : reprises du site principal en attendant celles du showroom. À CONFIRMER. */
   email: 'contact@experts-travaux.fr',
   phone: { display: '05 82 95 14 32', href: 'tel:+33582951432' },
-  /** Adresse du showroom : null tant que non communiquée (rien n'est affiché ni émis en JSON-LD). À RENSEIGNER. */
-  address: null as null | { street: string; city: string; mapsUrl: string },
-  /** Horaires d'ouverture : null tant que non communiqués. Exemple : [{ jours: 'Lundi – vendredi', horaires: '9h – 18h' }]. */
-  horaires: null as null | { jours: string; horaires: string }[],
+  /** Adresse du showroom (renseignée). `city` = code postal + ville (le JSON-LD les sépare au premier espace). */
+  address: {
+    street: '31 Rue du Rempart Matabiau',
+    city: '31000 Toulouse',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=31%20Rue%20du%20Rempart%20Matabiau%2C%2031000%20Toulouse',
+  },
+  /** Horaires affichés du showroom (valeur renseignée ; dimanche fermé non émis en JSON-LD). `null` = ni affichés ni émis en JSON-LD. */
+  horaires: [
+    { jours: 'Lundi', horaires: 'Sur rendez-vous' },
+    { jours: 'Mardi – samedi', horaires: '11h – 19h' },
+    { jours: 'Dimanche', horaires: 'Fermé' },
+  ] as null | { jours: string; horaires: string }[],
+  /** Forme structurée de `horaires` pour le JSON-LD (lundi sur rendez-vous et dimanche non émis). À garder alignée sur `horaires`. */
+  horairesSpec: {
+    dayOfWeek: ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    opens: '11:00',
+    closes: '19:00',
+  },
   socials: [
     { name: 'LinkedIn', icon: 'linkedin', url: 'https://www.linkedin.com/company/experts-travaux/about/' },
     { name: 'Instagram', icon: 'instagram', url: 'https://www.instagram.com/expertstravaux/' },

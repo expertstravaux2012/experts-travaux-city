@@ -36,6 +36,7 @@ export const organizationNode = (): JsonLdNode => ({
       }
     : { '@type': 'PostalAddress', addressLocality: site.areaServed.city, addressCountry: 'FR' },
   ...(site.address ? { hasMap: site.address.mapsUrl } : {}),
+  ...(site.horaires ? { openingHoursSpecification: { '@type': 'OpeningHoursSpecification', ...site.horairesSpec } } : {}),
   areaServed: areaServedNode(),
   sameAs: site.socials.map((s) => s.url),
 });

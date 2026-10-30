@@ -3,10 +3,10 @@
 import { site } from '../../data/site';
 import { rdvIntro, rdvForm, rdvConfirmation, type RdvIntro } from '../../data/rdv';
 import { pourQuelProjet } from '../../data/home';
-import { infosPratiques } from '../../data/showroom';
 import Section from '../ui/Section.astro';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
+import Horaires from '../ui/Horaires.astro';
 import Cube from '../ui/Cube.astro';
 import SalleLabel from '../ui/SalleLabel.astro';
 import SalleScene from '../ui/SalleScene.astro';
@@ -62,7 +62,7 @@ const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
             </a>
           )
         }
-        <p class="mt-space-sm text-body-sm text-on-accent">{infosPratiques.surRdv}</p>
+        <Horaires class="mt-space-sm text-on-accent" />
       </div>
     </div>
 

@@ -1,0 +1,28 @@
+---
+// Horaires d'ouverture du showroom (site.horaires) ; rien n'est rendu si non renseignés.
+import { site } from '../../data/site';
+import { infosPratiques } from '../../data/showroom';
+
+interface Props {
+  class?: string;
+  labelClass?: string;
+}
+
+const { class: className = '', labelClass = '' } = Astro.props;
+---
+
+{
+  site.horaires && (
+    <div class:list={['flex flex-col gap-1', className]}>
+      <span class:list={['label-md', labelClass]}>{infosPratiques.labels.horaires}</span>
+      <dl class="flex flex-col gap-1 text-body-md">
+        {site.horaires.map((h) => (
+          <div class="flex flex-wrap gap-x-3">
+            <dt>{h.jours}</dt>
+            <dd>{h.horaires}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )
+}

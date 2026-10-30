@@ -3,6 +3,7 @@ import { navigation } from '../../data/navigation';
 import { site } from '../../data/site';
 import Icon from '../ui/Icon.astro';
 import Logo from '../ui/Logo.astro';
+import Horaires from '../ui/Horaires.astro';
 import { legalLinks } from '../../data/legal';
 import { cookieTexts } from '../../data/cookies';
 import { signature } from '../../data/home';
@@ -64,6 +65,7 @@ const linkTone = 'text-stone/90 hover:text-stone';
             </a>
           )
         }
+        <Horaires class="mt-space-sm text-stone/90" labelClass="text-stone/70" />
         <a href={site.parent.url} class={`mt-space-md text-city-on-dark hover:text-stone ${linkClass}`}>{site.parent.linkLabel}</a>
       </div>
     </div>
