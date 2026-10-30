@@ -7,19 +7,19 @@ export interface RdvIntro {
 
 export const rdvIntro: RdvIntro = {
   title: 'Réservez votre visite du showroom',
-  text: 'Indiquez-nous vos disponibilités et la nature de votre projet. Nous revenons vers vous pour confirmer le créneau.',
+  text: 'Indiquez-nous vos disponibilités et la nature de votre projet. Votre demande est envoyée par e-mail à l’équipe du showroom.',
 };
 
 /** Confirmation animée après envoi réussi (« le cube se ferme »). Aucun délai promis. */
 export const rdvConfirmation = {
   title: 'Demande transmise',
-  text: 'Nous revenons vers vous pour confirmer le créneau de votre visite.',
+  text: 'Votre demande de visite a bien été envoyée par e-mail à l’équipe du showroom.',
   /** Texte alternatif de l'animation (décoratif : à utiliser en aria-label ou à masquer). */
   illustrationAlt: 'Le cube se referme : votre demande est transmise.',
 } as const;
 
 export const rdvForm = {
-  /** Variable d'environnement (PUBLIC_RDV_WEBHOOK_URL) : URL du webhook n8n. Voir .env.example. */
+  /** Envoi par e-mail via Mailjet (fonction serveur Vercel) : rien n'est stocké sur le site. */
   fields: {
     nom: { label: 'Nom', placeholder: 'Votre nom' },
     email: { label: 'Email', placeholder: 'vous@exemple.fr' },
@@ -43,9 +43,8 @@ export const rdvForm = {
   /** Champ piège anti-spam (masqué visuellement) : libellé lu par les lecteurs d'écran. */
   honeypotLabel: 'Ne pas remplir',
   consent:
-    'J’accepte que ces informations soient utilisées pour répondre à ma demande de rendez-vous (voir les mentions légales).',
+    'J’accepte que ces informations soient transmises par e-mail à Experts Travaux City pour traiter ma demande de rendez-vous (voir les mentions légales).',
   submit: 'Demander ce rendez-vous',
   sending: 'Envoi en cours…',
-  error: 'L’envoi a échoué. Réessayez ou contactez-nous directement par téléphone ou par e-mail.',
-  unavailable: 'Le formulaire n’est pas disponible pour le moment. Contactez-nous directement par téléphone ou par e-mail.',
+  error: 'Votre demande n’a pas pu être envoyée. Réessayez dans un instant ou contactez-nous directement par téléphone ou par e-mail.',
 } as const;

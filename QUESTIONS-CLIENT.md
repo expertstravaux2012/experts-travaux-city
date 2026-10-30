@@ -32,7 +32,7 @@ Réunion de lundi. Principe du site : rien n'est écrit sans justificatif. Chaqu
 - [ ] Quel délai minimum pour prendre rendez-vous ?
   Sert à la date minimale du formulaire et au message de confirmation. Fichier : `rdv.ts`.
 - [ ] Qui reçoit et traite les demandes de rendez-vous ?
-  Sert à la configuration des notifications du webhook. Fichier : workflow n8n.
+  Sert à renseigner `RDV_TO_EMAIL` (destinataire des e-mails Mailjet). Fichier : variables Vercel.
 - [ ] Les motifs du formulaire sont-ils les bons : rénovation complète, extension, cuisine ou salle de bain, maison sur mesure, local professionnel, autre ?
   Sert à la liste déroulante. Fichier : `rdv.ts`.
 
@@ -129,8 +129,8 @@ Fichier : `src/data/legal.ts` (champs « À COMPLÉTER »).
 
 ## 8. Technique (côté Hery, à ne pas poser au client)
 
-- [ ] Webhook n8n : créer le workflow et renseigner `PUBLIC_RDV_WEBHOOK_URL`.
-- [ ] Tester l'envoi de bout en bout : champs reçus, `consent: "on"`, CORS, notifications.
+- [ ] Mailjet : renseigner `MAILJET_API_KEY`, `MAILJET_API_SECRET`, `MAILJET_SENDER_EMAIL` dans Vercel.
+- [ ] Tester l'envoi de bout en bout : champs reçus, `consent: "on"`, origine autorisée, e-mail reçu.
 - [ ] Choisir l'hébergement et le déploiement du site Astro ; vérifier le certificat HTTPS.
 - [ ] Tester dans un navigateur à 390, 768 et 1440 px : hélice 3D, menu mobile, bandeau cookies, focus clavier.
 - [ ] Décider selon la FAQ : supprimer ou compléter `lib/faq-jsonld.ts`.

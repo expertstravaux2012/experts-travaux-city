@@ -60,15 +60,15 @@ Inspiré de la section « Uma nova perspectiva » d'azimuteresidencial.com.br (i
 
 ## Visuels
 
-`public/assets/city/` : six visuels 16/9 (`choix_*`). Servir les variantes `-1600.webp` ; les originaux 2752 px ne sont pas utilisés. **Ce sont des rendus illustratifs** : ne pas les présenter comme des photos du showroom ; à remplacer par de vraies photos.
+`public/assets/city/` : six visuels 16/9 (`choix_*`). Servir les variantes `-1600.webp` ; les originaux 2752 px ne sont pas utilisés. Le fond de l'Entrée est une **vraie photo du showroom** (variantes `showroom-experts-travaux-city*.webp`, original dans `docs/photos/`). **Les six `choix_*` restent des rendus illustratifs** : ne pas les présenter comme des photos du showroom ; à remplacer par de vraies photos.
 
 ## Rendez-vous
 
-`RdvSection` poste un JSON vers un webhook **n8n** : `PUBLIC_RDV_WEBHOOK_URL` (`.env.example`). Champs : nom, email, tel, motif, date, creneau, message, consent, source, page. Champ piège anti-spam `website`. Sans URL, message de repli.
+`RdvSection` poste un JSON vers la fonction Vercel `api/rdv.ts` (logique pure dans `src/lib/rdv-mail.ts`), qui envoie un e-mail via **Mailjet** (`MAILJET_API_KEY`, `MAILJET_API_SECRET`, `MAILJET_SENDER_EMAIL`, `RDV_TO_EMAIL` optionnel ; `.env.example`). Rien n'est stocké. Champs : nom, email, tel, motif, date, creneau, message, consent, source, page. Champ piège anti-spam `website`. En `astro dev`, `/api` n'est pas servi (erreur normale affichée) : utiliser `vercel dev`.
 
 ## À renseigner avant mise en ligne
 
-`src/data/site.ts` : `url` (domaine, provisoire `city.experts-travaux.fr`), `address`, `horaires`, `phone`/`email` du showroom (repris du site principal en attendant), `indexable: true` (interrupteur unique : `false` = noindex + `Disallow: /`), `showHelix` (interrupteur unique, `false` par défaut : Entrée en salle 00 ; `true` = hélice 3D à la place de l'Entrée, `tour.ts` n'est chargé que dans ce cas). `src/data/legal.ts` : éditeur, hébergeur. Webhook n8n. Textes de `home.ts`/`showroom.ts` : provisoires, à valider. Photos réelles du showroom.
+`src/data/site.ts` : `url` (domaine définitif `city.experts-travaux.fr`), `address` et `horaires` renseignés (31 Rue du Rempart Matabiau, 31000 Toulouse ; lundi sur rendez-vous, mardi–samedi 11h–19h, dimanche fermé), `phone` 05 82 95 14 32 confirmé, `email` contact@experts-travaux.fr conservé, `indexable` (interrupteur unique, reste `false` jusqu'à décision de Hery : `false` = noindex + `Disallow: /`), `showHelix` (interrupteur unique, `false` par défaut : Entrée en salle 00 ; `true` = hélice 3D à la place de l'Entrée, `tour.ts` n'est chargé que dans ce cas). `src/data/legal.ts` : éditeur, hébergeur. Variables Mailjet dans Vercel (MAILJET_API_KEY, MAILJET_API_SECRET, MAILJET_SENDER_EMAIL). Textes de `home.ts`/`showroom.ts` : provisoires, à valider. Photos réelles du showroom.
 
 ## Agents (`.claude/agents/`)
 

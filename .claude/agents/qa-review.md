@@ -34,7 +34,7 @@ Tu es le contrôle qualité du site **Experts Travaux City**. Tu ne construis ri
 - **Rien d'inventé** : pas d'adresse, d'horaire, de chiffre, de label, de garantie ou de témoignage sans justificatif ; les valeurs manquantes sont `null` / « À COMPLÉTER » et n'apparaissent pas à l'écran ni en JSON-LD.
 - Les visuels `public/assets/city/` ne sont pas présentés comme des photos du showroom ; les légendes décrivent le visible.
 - `indexable: false` tant que Hery n'a pas décidé le lancement (noindex + robots `Disallow: /`) ; title ≤ 60, description 145–157, un seul H1, JSON-LD valide.
-- Formulaire : webhook `PUBLIC_RDV_WEBHOOK_URL`, champ piège `website`, consentement, message de repli sans URL.
+- Formulaire : fonction `/api/rdv` (variables `MAILJET_*`), champ piège `website`, consentement, message de repli sans URL.
 - Poids : variantes `-1600.webp` servies, Three.js chargé à la demande.
 
 ## Format de sortie

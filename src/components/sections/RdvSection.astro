@@ -1,5 +1,5 @@
 ---
-// Section de prise de rendez-vous : coordonnées + formulaire envoyé à un webhook n8n (PUBLIC_RDV_WEBHOOK_URL).
+// Section de prise de rendez-vous : coordonnées + formulaire posté en JSON vers la fonction Vercel /api/rdv (e-mail via Mailjet).
 import { site } from '../../data/site';
 import { rdvIntro, rdvForm, rdvConfirmation, type RdvIntro } from '../../data/rdv';
 import { pourQuelProjet } from '../../data/home';
@@ -20,7 +20,6 @@ interface Props {
 
 const { intro = rdvIntro, id = 'rendez-vous' } = Astro.props;
 const { fields: f } = rdvForm;
-const webhook = import.meta.env.PUBLIC_RDV_WEBHOOK_URL ?? '';
 const numero = etapes.find((e) => e.id === 'rendez-vous')?.numero ?? '';
 const today = new Date().toISOString().slice(0, 10);
 
@@ -70,10 +69,8 @@ const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
     <form
       id="rdv-form"
       class={`flex flex-col gap-5 ${cardPadding}`}
-      data-webhook={webhook}
       data-sending={rdvForm.sending}
       data-error={rdvForm.error}
-      data-unavailable={rdvForm.unavailable}
     >
       <div class="flex flex-col gap-2">
         <label for="nom" class={labelClass}>{f.nom.label}</label>
@@ -139,21 +136,17 @@ const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
   const form = document.getElementById('rdv-form') as HTMLFormElement | null;
   const status = document.getElementById('rdv-status');
   if (form && status) {
-    const { webhook, sending, error, unavailable } = form.dataset;
+    const { sending, error } = form.dataset;
     const confirm = document.getElementById('rdv-confirm');
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       if (data.website) return; // honeypot
-      if (!webhook) {
-        status.textContent = unavailable ?? '';
-        return;
-      }
       status.textContent = sending ?? '';
       if (submit) submit.disabled = true;
       try {
-        const res = await fetch(webhook, {
+        const res = await fetch('/api/rdv', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...data, source: 'site-showroom-city', page: location.pathname }),
