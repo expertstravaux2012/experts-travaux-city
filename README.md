@@ -23,7 +23,7 @@ npm test         # tests unitaires (node --test sur src/**/*.test.ts)
 | `src/components/` | `ui/` (briques réutilisables), `layout/` (header, footer, rail, plan...), `sections/` (sections de la page) |
 | `src/lib/` | Logique sans markup (JSON-LD, consentement, e-mail de rendez-vous, hélice 3D) |
 | `src/styles/global.css` | Tokens de la charte et utilitaires |
-| `src/pages/` | `index`, `mentions-legales`, `cgu`, `robots.txt` |
+| `src/pages/` | `index`, `mentions-legales`, `cgu`, `robots.txt`, `llms.txt` |
 | `api/rdv.ts` | Fonction Vercel du formulaire de rendez-vous |
 | `public/assets/` | Visuels servis tels quels (`city/`, `rebranding/`, `og-city.jpg`) |
 | `docs/` | Documents de travail (maquette, marque, photo originale) |

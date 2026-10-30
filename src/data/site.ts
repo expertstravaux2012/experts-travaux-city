@@ -11,9 +11,9 @@ export const site = {
   url: 'https://city.experts-travaux.fr',
   /**
    * Interrupteur unique d'indexation. false = noindex, nofollow sur toutes les pages,
-   * robots.txt en `Disallow: /`. Passer à true au lancement, une fois le domaine confirmé.
+   * robots.txt en `Disallow: /`. Passé à true au lancement (domaine confirmé).
    */
-  indexable: false,
+  indexable: true,
   /**
    * Préloader « cube qui se dessine » (une fois par session, ~3 s). false = non émis (code conservé dans
    * Preloader.astro ; l'intro porte le remplace) ; true = affiché.

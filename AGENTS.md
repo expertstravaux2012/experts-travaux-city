@@ -47,7 +47,7 @@ src/
     sections/            Hero (hélice, derrière showHelix), Entree, Salles, Parcours, Marque, RdvSection
     sections/page/       PageIntro (pages légales)
   layouts/Layout.astro   head, polices, SEO, JSON-LD
-  pages/                 index, mentions-legales, cgu, robots.txt.ts
+  pages/                 index, mentions-legales, cgu, robots.txt.ts, llms.txt.ts
 ```
 
 Une seule page de contenu. Navigation par ancres : `/#methode` (Parcours), `/#apropos` (Marque), `/#rendez-vous` (RdvSection), `#showroom` (Entrée). Pages supprimées (validé) : `/showroom/`, `/prendre-rendez-vous/`, section « Matières ».
