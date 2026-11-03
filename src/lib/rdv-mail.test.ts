@@ -91,3 +91,15 @@ test('sendRdvMail renvoie false sur échec Mailjet, erreur réseau ou env incomp
 test('escapeHtml', () => {
   assert.equal(escapeHtml(`<a href="x">&'`), '&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
 });
+
+test('le payload contient l’e-mail interne puis l’accusé au visiteur', () => {
+  const p = buildMailjetPayload(ok({ ...valid, nom: 'Ada\r\nBcc: x' }), { ...env, RDV_TO_EMAIL: 'equipe@exemple.fr' });
+  assert.equal(p.Messages.length, 2);
+  const [interne, accuse] = p.Messages as [typeof p.Messages[0], typeof p.Messages[0]];
+  assert.equal(interne.To[0]!.Email, 'equipe@exemple.fr');
+  assert.equal(accuse.To[0]!.Email, 'ada@exemple.fr');
+  assert.equal(accuse.To[0]!.Name, 'Ada Bcc: x');
+  assert.equal(accuse.From.Email, 'noreply@exemple.fr');
+  assert.equal(accuse.ReplyTo.Email, 'equipe@exemple.fr');
+  assert.equal(buildMailjetPayload(ok(valid), env).Messages[1]!.ReplyTo.Email, 'contact@experts-travaux.fr');
+});

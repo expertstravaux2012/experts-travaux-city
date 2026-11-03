@@ -48,3 +48,43 @@ export const rdvForm = {
   sending: 'Envoi en cours…',
   error: 'Votre demande n’a pas pu être envoyée. Réessayez dans un instant ou contactez-nous directement par téléphone ou par e-mail.',
 } as const;
+
+export interface RdvAccuse {
+  subject: string;
+  preheader: string;
+  title: string;
+  intro: string;
+  recapTitle: string;
+  /** Libellés des lignes du récapitulatif : repris du formulaire pour rester identiques. */
+  recapLabels: { motif: string; date: string; creneau: string };
+  nextStepsTitle: string;
+  nextSteps: string;
+  /** Délai de réponse : « sous 48 h », validé par Hery. `null` = non affiché (aucune durée promise). */
+  delai: string | null;
+  button: string;
+  signature: string;
+  footerNote: string;
+}
+
+/** E-mail d'accusé de réception envoyé au visiteur après sa demande (adresse, horaires et téléphone : lus dans site.ts par le code). */
+export const accuse: RdvAccuse = {
+  subject: 'Votre demande de rendez-vous à Experts Travaux City',
+  preheader: 'Nous avons bien reçu votre demande de visite du showroom.',
+  title: 'Votre demande est bien reçue',
+  intro:
+    'Merci d’avoir pris contact avec Experts Travaux City. Votre demande de visite du showroom est bien arrivée auprès de notre équipe.',
+  recapTitle: 'Votre demande',
+  recapLabels: {
+    motif: rdvForm.fields.motif.label,
+    date: rdvForm.fields.date.label,
+    creneau: rdvForm.fields.creneau.label,
+  },
+  nextStepsTitle: 'Et ensuite ?',
+  nextSteps:
+    'L’équipe revient vers vous pour confirmer la date et le créneau de votre rendez-vous.',
+  delai: 'Vous recevez notre réponse sous 48 h.',
+  button: 'Découvrir le showroom',
+  signature: 'L’équipe Experts Travaux City',
+  footerNote:
+    'Cet e-mail est envoyé automatiquement après votre demande. Pour nous joindre, répondez simplement à ce message.',
+};

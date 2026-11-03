@@ -1,4 +1,5 @@
 import { site } from '../data/site.ts';
+import { buildAccuse } from './rdv-accuse.ts';
 
 export const MAX_BODY_BYTES = 10_000;
 const MAILJET_URL = 'https://api.mailjet.com/v3.1/send';
@@ -23,7 +24,7 @@ export type ParseResult =
   | { kind: 'spam' }
   | { kind: 'invalid'; fields: string[] };
 
-const oneLine = (s: string) => s.replace(/[\r\n\u2028\u2029]+/g, ' ').trim();
+export const oneLine = (s: string) => s.replace(/[\r\n\u2028\u2029]+/g, ' ').trim();
 
 export const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
@@ -95,6 +96,12 @@ export function buildMailjetPayload(d: RdvData, env: MailEnv) {
         Subject: `Demande de rendez-vous — ${nom}`,
         TextPart: text,
         HTMLPart: html,
+      },
+      {
+        From: { Email: env.MAILJET_SENDER_EMAIL, Name: site.name },
+        To: [{ Email: oneLine(d.email), Name: nom }],
+        ReplyTo: { Email: env.RDV_TO_EMAIL || site.email },
+        ...buildAccuse(d),
       },
     ],
   };
