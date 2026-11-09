@@ -37,11 +37,13 @@ Le formulaire envoie un seul e-mail via Mailjet, depuis la fonction Vercel `api/
 Variables à renseigner dans Vercel (serveur uniquement, jamais `PUBLIC_`), modèle dans `.env.example` :
 
 - Obligatoires : `MAILJET_API_KEY`, `MAILJET_API_SECRET`, `MAILJET_SENDER_EMAIL` (adresse expéditeur validée dans Mailjet). Si l'une manque, l'envoi échoue (réponse 500).
+- Anti-spam Cloudflare Turnstile : `PUBLIC_TURNSTILE_SITE_KEY` (navigateur) et `TURNSTILE_SECRET_KEY` (serveur, logique dans `src/lib/turnstile.ts`). Les deux clés vont ensemble : sans `TURNSTILE_SECRET_KEY`, `/api/rdv` refuse tout (production et previews Vercel comprises, qui doivent donc la définir) sauf en développement local ou `VERCEL_ENV=development` ; sans clé publique, aucun widget n'est affiché. Le script Turnstile n'est chargé qu'à la première interaction avec le formulaire. Le serveur exige `action` = `rdv` et `hostname` = domaine du site (localhost en développement seulement).
 - Optionnelle : `RDV_TO_EMAIL` (destinataire ; par défaut `email` de `src/data/site.ts`).
 
 Sécurité :
 
 - Validation côté serveur (champs, longueurs, e-mail, consentement ; corps limité à `MAX_BODY_BYTES`).
+- Jeton Turnstile vérifié avant tout envoi (400 `captcha_failed` sinon). Retours ligne refusés dans nom, e-mail, tél., motif, date ; e-mail strict.
 - Champ piège anti-spam `website` : s'il est rempli, la requête est ignorée silencieusement.
 - Contrôle de l'en-tête `Origin` : domaine du site (`site.url`), hôte de la requête ou prévisualisations Vercel du projet.
 - Limitation de débit configurée dans Vercel Firewall (hors dépôt) : 5 envois / 10 min / IP sur `POST /api/rdv`.
