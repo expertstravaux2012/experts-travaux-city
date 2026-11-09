@@ -21,6 +21,7 @@ interface Props {
 const { intro = rdvIntro, id = 'rendez-vous' } = Astro.props;
 const { fields: f } = rdvForm;
 const numero = etapes.find((e) => e.id === 'rendez-vous')?.numero ?? '';
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || undefined;
 const today = new Date().toISOString().slice(0, 10);
 
 const fieldClass =
@@ -71,6 +72,9 @@ const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
       class={`flex flex-col gap-5 ${cardPadding}`}
       data-sending={rdvForm.sending}
       data-error={rdvForm.error}
+      data-captcha-error={rdvForm.captchaError}
+      data-captcha-pending={rdvForm.captchaPending}
+      data-turnstile-key={turnstileSiteKey}
     >
       <div class="flex flex-col gap-2">
         <label for="nom" class={labelClass}>{f.nom.label}</label>
@@ -114,6 +118,7 @@ const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
         <label for="website">{rdvForm.honeypotLabel}</label>
         <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
       </div>
+      {turnstileSiteKey && <div id="rdv-turnstile"></div>}
       <label class="flex items-start gap-3 text-body-sm text-stone/85">
         <input type="checkbox" name="consent" required class="mt-1 h-4 w-4 shrink-0 accent-city-on-dark" />
         <span>{rdvForm.consent}</span>
@@ -133,34 +138,96 @@ const cardPadding = 'px-space-lg py-space-lg sm:px-space-xl sm:py-space-xl';
 </Section>
 
 <script>
+  interface TurnstileApi {
+    render(el: HTMLElement, options: Record<string, unknown>): string;
+    reset(widgetId?: string): void;
+  }
+  const TURNSTILE_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+
   const form = document.getElementById('rdv-form') as HTMLFormElement | null;
   const status = document.getElementById('rdv-status');
   if (form && status) {
-    const { sending, error } = form.dataset;
+    const { sending, error, captchaError, captchaPending, turnstileKey } = form.dataset;
     const confirm = document.getElementById('rdv-confirm');
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const captchaBox = document.getElementById('rdv-turnstile');
+    let token = '';
+    let widgetId: string | undefined;
+
+    // Turnstile n'est chargé qu'à la première interaction avec le formulaire.
+    if (turnstileKey && captchaBox) {
+      const turnstile = () => (window as unknown as { turnstile?: TurnstileApi }).turnstile;
+      let requested = false;
+      const load = () => {
+        if (requested) return;
+        requested = true;
+        const script = document.createElement('script');
+        script.src = TURNSTILE_SRC;
+        script.async = true;
+        script.onload = () => {
+          const api = turnstile();
+          if (!api) {
+            script.remove();
+            requested = false;
+            status.textContent = captchaError ?? '';
+            return;
+          }
+          widgetId = api.render(captchaBox, {
+            sitekey: turnstileKey,
+            action: 'rdv',
+            theme: 'dark',
+            appearance: 'interaction-only',
+            callback: (t: string) => (token = t),
+            'expired-callback': () => (token = ''),
+            'timeout-callback': resetCaptcha,
+            'error-callback': resetCaptcha,
+          });
+        };
+        script.onerror = () => {
+          script.remove();
+          requested = false;
+        };
+        document.head.appendChild(script);
+      };
+      form.addEventListener('focusin', load);
+      form.addEventListener('pointerdown', load);
+    }
+    function resetCaptcha() {
+      token = '';
+      if (widgetId) (window as unknown as { turnstile?: TurnstileApi }).turnstile?.reset(widgetId);
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       if (data.website) return; // honeypot
+      if (turnstileKey && !token) {
+        status.textContent = captchaPending ?? error ?? '';
+        return;
+      }
       status.textContent = sending ?? '';
       if (submit) submit.disabled = true;
       try {
         const res = await fetch('/api/rdv', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...data, source: 'site-showroom-city', page: location.pathname }),
+          body: JSON.stringify({ ...data, turnstileToken: token, source: 'site-showroom-city', page: location.pathname }),
         });
-        if (!res.ok) throw new Error(String(res.status));
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.error ?? String(res.status));
+        }
         form.reset();
+        resetCaptcha();
         status.textContent = '';
         form.hidden = true;
         if (confirm) {
           confirm.hidden = false;
           document.getElementById('rdv-confirm-title')?.focus();
         }
-      } catch {
-        status.textContent = error ?? '';
+      } catch (err) {
+        status.textContent = (err instanceof Error && err.message === 'captcha_failed' ? captchaError : error) ?? '';
+        resetCaptcha();
         if (submit) {
           submit.disabled = false;
           submit.focus();

@@ -47,6 +47,8 @@ export const rdvForm = {
   submit: 'Demander ce rendez-vous',
   sending: 'Envoi en cours…',
   error: 'Votre demande n’a pas pu être envoyée. Réessayez dans un instant ou contactez-nous directement par téléphone ou par e-mail.',
+  captchaPending: 'Vérification de sécurité en cours, réessayez dans un instant.',
+  captchaError: 'La vérification anti-robot n’a pas abouti. Réessayez, ou contactez-nous directement par téléphone ou par e-mail.',
 } as const;
 
 export interface RdvAccuse {

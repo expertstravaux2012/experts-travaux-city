@@ -89,6 +89,7 @@ export const mentionsLegales: LegalDocument = {
         `Le responsable du traitement est ${e.raisonSociale}, dont les coordonnées figurent ci-dessus.`,
         'Les données saisies dans le formulaire de rendez-vous (nom, adresse e-mail, téléphone, nature du projet, date et créneau souhaités, précisions) sont utilisées uniquement pour répondre à votre demande, confirmer votre visite du showroom et, le cas échéant, établir un devis. La base légale est l’exécution de mesures précontractuelles prises à votre demande.',
         `Ces informations sont transmises par e-mail à ${site.name} via le prestataire d’envoi Mailjet, qui agit en qualité de sous-traitant. Le site ne les conserve pas : aucune donnée du formulaire n’y est stockée.`,
+        `Pour protéger le formulaire contre le spam, le site utilise la vérification anti-robot Cloudflare Turnstile, un service tiers de sécurité fourni par Cloudflare, Inc. Son script est chargé depuis challenges.cloudflare.com lorsque vous utilisez le formulaire ; Cloudflare traite alors des données techniques (adresse IP, navigateur, signaux de comportement) pour distinguer un visiteur humain d’un robot. Ce traitement répond à notre intérêt légitime de sécuriser le site ; il ne sert à aucune publicité.`,
         `Côté ${site.name}, elles sont conservées le temps nécessaire au traitement de votre demande, puis au plus ${legal.conservationDonnees} à compter du dernier échange. Elles ne sont ni vendues ni cédées à des tiers.`,
         `Conformément au RGPD et à la loi Informatique et Libertés, vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité de vos données. Pour l’exercer, écrivez à ${site.email}. Vous pouvez aussi introduire une réclamation auprès de la CNIL (www.cnil.fr).`,
       ],
@@ -98,6 +99,7 @@ export const mentionsLegales: LegalDocument = {
       title: 'Cookies et traceurs',
       paragraphs: [
         'Le site ne dépose aucun cookie de mesure d’audience ou de publicité sans votre consentement préalable. Les seuls éléments enregistrés par défaut sont strictement nécessaires au fonctionnement du site, dont la mémorisation de votre choix.',
+        'Le service de sécurité Cloudflare Turnstile, utilisé au moment où vous remplissez le formulaire de rendez-vous, est strictement nécessaire à la protection du site contre le spam. Il peut recourir à des cookies ou à un stockage local techniques ; il ne requiert pas de consentement et n’est pas utilisé à des fins publicitaires.',
         'Votre choix est conservé six mois ; vous pouvez le modifier à tout moment.',
       ],
       cookieSettings: true,

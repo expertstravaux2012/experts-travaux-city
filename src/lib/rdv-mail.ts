@@ -5,7 +5,9 @@ export const MAX_BODY_BYTES = 10_000;
 const MAILJET_URL = 'https://api.mailjet.com/v3.1/send';
 // Prévisualisations Vercel de ce projet (projet experts-travaux-city, équipe experts-travaux).
 const VERCEL_PREVIEW_HOST = /^experts-travaux-city(-[a-z0-9-]+)?-experts-travaux\.vercel\.app$/;
-const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
+const LABEL = '[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?';
+const EMAIL_RE = new RegExp(`^[A-Za-z0-9.!#$%&'*+/=?^_\`{|}~-]+@${LABEL}(?:\\.${LABEL})+$`);
+const SINGLE_LINE: Field[] = ['nom', 'email', 'tel', 'motif', 'date'];
 
 const LIMITS = { nom: 120, email: 254, tel: 40, motif: 120, date: 20, creneau: 60, message: 3000, source: 60, page: 200 } as const;
 type Field = keyof typeof LIMITS;
@@ -47,7 +49,8 @@ export function parseRdv(input: unknown): ParseResult {
   }
   const consent = raw.consent === true || raw.consent === 'on' || raw.consent === 'true';
   if (!data.nom) invalid.push('nom');
-  if (!EMAIL_RE.test(data.email)) invalid.push('email');
+  if (!EMAIL_RE.test(data.email) || data.email.includes('..')) invalid.push('email');
+  for (const key of SINGLE_LINE) if (/[\u0000-\u001F\u007F\u2028\u2029]/.test(data[key])) invalid.push(key);
   if (!consent) invalid.push('consent');
   return invalid.length ? { kind: 'invalid', fields: [...new Set(invalid)] } : { kind: 'ok', data };
 }

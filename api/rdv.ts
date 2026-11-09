@@ -1,4 +1,5 @@
 import { isAllowedOrigin, MAX_BODY_BYTES, parseRdv, sendRdvMail } from '../src/lib/rdv-mail.ts';
+import { clientIp, extractToken, verifyTurnstile } from '../src/lib/turnstile.ts';
 
 const json = (status: number, body: Record<string, unknown>, headers: Record<string, string> = {}) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
@@ -23,6 +24,13 @@ export async function POST(request: Request): Promise<Response> {
   const parsed = parseRdv(body);
   if (parsed.kind === 'spam') return json(200, { ok: true });
   if (parsed.kind === 'invalid') return json(400, { ok: false, error: 'validation', fields: parsed.fields });
+
+  const captcha = await verifyTurnstile(
+    extractToken(body),
+    clientIp(request.headers.get('x-forwarded-for')),
+    process.env,
+  );
+  if (!captcha.ok) return json(400, { ok: false, error: 'captcha_failed' });
 
   const sent = await sendRdvMail(parsed.data, process.env);
   return sent ? json(200, { ok: true }) : json(500, { ok: false, error: 'send_failed' });

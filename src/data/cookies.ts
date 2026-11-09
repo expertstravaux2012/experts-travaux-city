@@ -18,7 +18,7 @@ export const consentCategories: CookieCategory[] = [
     id: 'necessaires',
     label: 'Cookies nécessaires',
     description:
-      'Indispensables au fonctionnement du site et à la mémorisation de votre choix. Ils ne peuvent pas être désactivés.',
+      'Indispensables au fonctionnement du site et à la mémorisation de votre choix, ainsi qu’à la sécurité du formulaire de rendez-vous (vérification anti-robot Cloudflare Turnstile, qui peut recourir à des cookies ou à un stockage local techniques, sans finalité publicitaire). Ils ne peuvent pas être désactivés.',
     required: true,
   },
   {

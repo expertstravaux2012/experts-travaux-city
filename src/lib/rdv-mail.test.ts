@@ -52,7 +52,7 @@ test('isAllowedOrigin', () => {
 });
 
 test('le message retire CR/LF des en-têtes et échappe le HTML', () => {
-  const d = ok({ ...valid, nom: 'Ada\r\nBcc: x@y.fr', email: 'ada@exemple.fr', message: '<script>a</script>\nligne' });
+  const d = { ...ok(valid), nom: 'Ada\r\nBcc: x@y.fr', message: '<script>a</script>\nligne' };
   const m = buildMailjetPayload(d, env).Messages[0]!;
   assert.doesNotMatch(m.Subject, /[\r\n]/);
   assert.match(m.Subject, /^Demande de rendez-vous — Ada Bcc: x@y\.fr$/);
@@ -93,7 +93,7 @@ test('escapeHtml', () => {
 });
 
 test('le payload contient l’e-mail interne puis l’accusé au visiteur', () => {
-  const p = buildMailjetPayload(ok({ ...valid, nom: 'Ada\r\nBcc: x' }), { ...env, RDV_TO_EMAIL: 'equipe@exemple.fr' });
+  const p = buildMailjetPayload({ ...ok(valid), nom: 'Ada\r\nBcc: x' }, { ...env, RDV_TO_EMAIL: 'equipe@exemple.fr' });
   assert.equal(p.Messages.length, 2);
   const [interne, accuse] = p.Messages as [typeof p.Messages[0], typeof p.Messages[0]];
   assert.equal(interne.To[0]!.Email, 'equipe@exemple.fr');
@@ -102,4 +102,19 @@ test('le payload contient l’e-mail interne puis l’accusé au visiteur', () =
   assert.equal(accuse.From.Email, 'noreply@exemple.fr');
   assert.equal(accuse.ReplyTo.Email, 'equipe@exemple.fr');
   assert.equal(buildMailjetPayload(ok(valid), env).Messages[1]!.ReplyTo.Email, 'contact@experts-travaux.fr');
+});
+
+test('parseRdv refuse les retours ligne dans nom, email, motif (anti-injection d’en-têtes)', () => {
+  for (const key of ['nom', 'email', 'motif'] as const) {
+    const v = key === 'email' ? 'ada@exemple.fr\r\nBcc: x@y.fr' : 'Ada\r\nBcc: x@y.fr';
+    assert.equal(parseRdv({ ...valid, [key]: v }).kind, 'invalid', key);
+  }
+  assert.equal(parseRdv({ ...valid, message: 'ligne 1\nligne 2' }).kind, 'ok');
+});
+
+test('parseRdv : e-mail strict', () => {
+  for (const email of ['a@b', 'a b@c.fr', 'a@c..fr', '<a>@c.fr', 'a@-c.fr', 'a@c.fr,b@d.fr', 'a"@c.fr', 'a@c.fr>']) {
+    assert.equal(parseRdv({ ...valid, email }).kind, 'invalid', email);
+  }
+  assert.equal(parseRdv({ ...valid, email: 'ada.l+rdv@sous.exemple.fr' }).kind, 'ok');
 });
